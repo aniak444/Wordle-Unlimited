@@ -1,0 +1,48 @@
+# Wordle Unlimited - Aplikacja Desktopowa
+
+Projekt realizowany w ramach przedmiotu **Narzędzia Pracy Grupowej (NPG)**.
+
+---
+
+## Opis produktu
+
+**Wordle Unlimited** to nowoczesna, samodzielna aplikacja desktopowa inspirowana gra internetową "Wordle", tworzoną przez NYT. Nasza wersja usuwa największą wadę oryginału – ograniczenie do jednej rozgrywki dziennie – i wprowadza szereg ulepszeń, które transformują prostą minigrę w rozbudowaną aplikację.
+
+Gra opiera się na aplikacji okienkowej (system desktopowy), eliminując potrzebę uruchamiania przeglądarki internetowej czy instalowania ciężkich środowisk kontenerowych przez użytkownika końcowego.
+
+### Kluczowe mechaniki i dodatkowe funkcjonalności projektu:
+*   **Tryb Nieskończony (Endless Mode):** Po zakończeniu rozgrywki (wygranej lub przegranej) użytkownik może natychmiast rozpocząć nową partię z nowym, losowym hasłem.
+*   **Inteligentny System Podpowiedzi (Hint System):** Jeśli gracz ma problem z odgadnięciem słowa, po 3. nieudanej próbie aplikacja odblokowuje podpowiedź.
+*   **Wybór długości słowa:** Użytkownik przed startem decyduje, czy chce zgadywać słowa 4-, 5-, lub 6-literowe. Plansza gry dynamicznie dostosowuje swój rozmiar.
+*   **Poziomy trudności haseł:** Słowa w bazie są kategoryzowane według stopnia zaawansowania (od prostych słów codziennych po rzadkie terminy).
+
+---
+
+## Zasady gry
+
+1. Celem gracza jest odgadnięcie ukrytego słowa w maksymalnie **6 próbach**.
+2. Każde wpisane słowo musi mieć poprawną długość (zgodną z wybranym ustawieniem) i istnieć w słowniku gry.
+3. Po zatwierdzeniu słowa, kafelki zmieniają kolor, udzielając graczowi informacji zwrotnej:
+    *   🟩 **Zielony:** Litera znajduje się w słowie i jest na poprawnej pozycji.
+    *   🟨 **Żółty:** Litera znajduje się w słowie, ale na innej pozycji.
+    *   ⬛ **Szary:** Litera w ogóle nie występuje w ukrytym słowie.
+4. Od 4. próby gracz może skorzystać z unikalnej podpowiedzi tekstowej.
+
+---
+
+## Tech Stack
+
+*   **Frontend / UI:** Python + `CustomTkinter`
+*   **Logika / API:** Python 3.x
+*   **Baza danych:** `SQLite` (lokalna baza danych przechowywana w jednym pliku)
+*   **Dystrybucja:** `PyInstaller` 
+
+
+
+---
+> **Status projektu:** W trakcie budowy (In Development)
+---
+
+## Licencja
+
+Udostępniany jest na licencji **MIT**.
