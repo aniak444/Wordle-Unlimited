@@ -14,6 +14,8 @@ class WordleApp(ctk.CTk):
         self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
         self.grid_container.pack(expand=True, pady=(20, 20))
         
+        self.tiles = []
+        
         # Triggering the grid rendering
         self.create_game_grid()
 
@@ -22,6 +24,8 @@ class WordleApp(ctk.CTk):
         column_count = 5
         
         for row_idx in range(row_count):
+            current_row_tiles = []  # Temporary list for the current row
+            
             for col_idx in range(column_count):
                 tile = ctk.CTkLabel(
                     self.grid_container,
@@ -33,6 +37,10 @@ class WordleApp(ctk.CTk):
                     font=("Arial", 24, "bold")
                 )
                 tile.grid(row=row_idx, column=col_idx, padx=6, pady=6)
+                
+                current_row_tiles.append(tile)
+                
+            self.tiles.append(current_row_tiles)
 
 if __name__ == "__main__":
     app = WordleApp()
