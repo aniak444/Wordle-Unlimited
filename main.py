@@ -8,6 +8,13 @@ if __name__ == "__main__":
     print(f"Haslo: {gra.target_word}")
     print(f"Status poczatkowy: {gra.status}, aktualny rząd: {gra.current_row}\n")
 
+    def kliknieto_enter(wpisane_slowo: str):
+        if len(wpisane_slowo) == 5:
+            wynik = gra.check_word(wpisane_slowo)
+            print(f"Wynik analizy: {wynik}")
+        else:
+            print("Wyświetl komunikat na ekranie: Za mało liter!")
+
     proba1 = "KOLOR"
     wynik1 = gra.check_word(proba1)
     print(f"Wpisane: {proba1} -> Wynik: {wynik1}")
