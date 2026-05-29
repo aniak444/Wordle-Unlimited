@@ -1,4 +1,5 @@
 from src.engine import GameEngine
+from src.ui import WordleApp
 
 if __name__ == "__main__":
     print("Test GameEngine \n")
@@ -21,3 +22,7 @@ if __name__ == "__main__":
     wynik3 = gra.check_word(proba3)
     print(f"Wpisane: {proba3} -> Wynik: {wynik3}")
     print(f"Status po próbie 3: {gra.status}, aktualny rząd: {gra.current_row}\n")
+
+
+    app = WordleApp()
+    app.mainloop()
