@@ -23,5 +23,6 @@ if __name__ == "__main__":
     print(f"Wpisane: {proba3} -> Wynik: {wynik3}")
     print(f"Status po próbie 3: {gra.status}, aktualny rząd: {gra.current_row}\n")
 
+
     app = WordleApp()
-    app.mainLoop()
+    app.mainloop()
