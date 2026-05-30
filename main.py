@@ -15,6 +15,23 @@ if __name__ == "__main__":
         else:
             print("Wyświetl komunikat na ekranie: Za mało liter!")
 
+    def kliknieto_backspace(kafelki: list):
+        if len(kafelki) > 0:
+            usunieta = kafelki.pop()
+            print(f"[BACKSPACE] Usunięto: '{usunieta}'. Aktualny stan rzędu: {kafelki}")
+        else:
+            print("[BACKSPACE] Blokada: Brak liter do usunięcia (indeks 0)!")
+
+    print("--- TEST BACKSPACE ---")
+    moje_kafelki = ["K", "O", "D"]
+    print(f"Stan początkowy kafelków: {moje_kafelki}")
+    
+    kliknieto_backspace(moje_kafelki)
+    kliknieto_backspace(moje_kafelki)
+    kliknieto_backspace(moje_kafelki)
+    kliknieto_backspace(moje_kafelki)
+    print("---------------------\n")")
+
     proba1 = "KOLOR"
     wynik1 = gra.check_word(proba1)
     print(f"Wpisane: {proba1} -> Wynik: {wynik1}")
