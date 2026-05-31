@@ -11,13 +11,28 @@ class WordleApp(ctk.CTk):
         self.geometry("450x700")
         self.resizable(False, False)
         
+        self.header_label = ctk.CTkLabel(
+            self,
+            text="WORDLE",
+            font=("Century Gothic", 36, "bold"),
+            text_color="#45FF79"
+        )
+        self.header_label.pack(pady=(25, 0))
+        
+        self.subheader_label = ctk.CTkLabel(
+            self,
+            text="UNLIMITED",
+            font=("Century Gothic", 18, "bold"),
+            text_color="#2DBA55"
+        )
+        self.subheader_label.pack(pady=(0, 10))
+        
         self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
         self.grid_container.pack(expand=True, pady=(20, 20))
         
         self.tiles = []
         
         self.create_game_grid()
-
         self.bind("<Key>", self.handle_keypress)
 
     def create_game_grid(self):
@@ -38,14 +53,12 @@ class WordleApp(ctk.CTk):
                     font=("Arial", 24, "bold")
                 )
                 tile.grid(row=row_idx, column=col_idx, padx=6, pady=6)
-                
                 current_row_tiles.append(tile)
                 
             self.tiles.append(current_row_tiles)
 
     def handle_keypress(self, event):
-        char = event.char 
-        
+        char = event.char
         if char.isalpha() and len(char) == 1:
             char_upper = char.upper()
             print(f"Zaakceptowano literę: {char_upper}")
