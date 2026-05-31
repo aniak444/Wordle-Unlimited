@@ -68,6 +68,15 @@ class WordleApp(ctk.CTk):
             if self.current_col < 5:
                 self.tiles[self.current_row][self.current_col].configure(text=char_upper)
                 self.current_col += 1
+    def advance_to_next_row(self): #przeskakujemy do nastepnego rzedu
+     
+        if self.current_row < 5:  # Mamy 6 rzędów (indeksy 0-5)
+            self.current_row += 1
+            self.current_col = 0  # Focus wraca na pierwszą kafelkę z brzegu
+            print(f"Przejście do rzędu: {self.current_row}")
+        else:
+            print("Koniec gry!")
+
 
 if __name__ == "__main__":
     app = WordleApp()
