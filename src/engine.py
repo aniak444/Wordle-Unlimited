@@ -12,13 +12,11 @@ class GameEngine:
         result = ["GRAY"] * 5
         target_letters = list(target)
 
-        # szukanie litery na dobrym miejscu
         for i in range(5):
             if guess[i] == target[i]:
                 result[i] = "GREEN"
                 target_letters[i] = None
 
-        # szukanie litery w hasle na zlym miejscu
         for i in range(5):
             if result[i] == "GREEN":
                 continue
@@ -28,7 +26,6 @@ class GameEngine:
                 index_to_remove = target_letters.index(guess[i])
                 target_letters[index_to_remove] = None
 
-        # obsluga limitu prob
         self.current_row += 1
         
         if result == ["GREEN", "GREEN", "GREEN", "GREEN", "GREEN"]:
