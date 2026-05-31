@@ -69,6 +69,19 @@ class WordleApp(ctk.CTk):
                 self.tiles[self.current_row][self.current_col].configure(text=char_upper)
                 self.current_col += 1
 
+    def color_row(self, row_idx, statuses):
+        # Słownik z oryginalnymi kolorami Wordle (2: zielony, 1: żółty, 0: szary)
+        color_map = {
+            2: "#538d4e",
+            1: "#b59f3b",
+            0: "#3a3a3c"
+        }
+        
+        for col_idx, status in enumerate(statuses):
+            if col_idx < 5:
+                kolor = color_map.get(status, "#3a3a3c")
+                self.tiles[row_idx][col_idx].configure(fg_color=kolor)
+
 if __name__ == "__main__":
     app = WordleApp()
     app.mainloop()
