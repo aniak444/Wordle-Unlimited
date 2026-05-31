@@ -14,7 +14,7 @@ class WordleApp(ctk.CTk):
         self.header_label = ctk.CTkLabel(
             self,
             text="WORDLE",
-            font=("Century Gothic", 36, "bold"),
+            font=("Arial", 36, "bold"),
             text_color="#45FF79"
         )
         self.header_label.pack(pady=(25, 0))
@@ -22,15 +22,18 @@ class WordleApp(ctk.CTk):
         self.subheader_label = ctk.CTkLabel(
             self,
             text="UNLIMITED",
-            font=("Century Gothic", 18, "bold"),
+            font=("Arial", 24),
             text_color="#2DBA55"
         )
-        self.subheader_label.pack(pady=(0, 10))
+        self.subheader_label.pack(pady=(0, 0))
         
         self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
         self.grid_container.pack(expand=True, pady=(20, 20))
         
         self.tiles = []
+        
+        self.current_row = 0
+        self.current_col = 0
         
         self.create_game_grid()
         self.bind("<Key>", self.handle_keypress)
@@ -61,7 +64,10 @@ class WordleApp(ctk.CTk):
         char = event.char
         if char.isalpha() and len(char) == 1:
             char_upper = char.upper()
-            print(f"Zaakceptowano literę: {char_upper}")
+            
+            if self.current_col < 5:
+                self.tiles[self.current_row][self.current_col].configure(text=char_upper)
+                self.current_col += 1
 
 if __name__ == "__main__":
     app = WordleApp()
