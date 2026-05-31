@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     def kliknieto_enter(wpisane_slowo: str):
         if len(wpisane_slowo) == 5:
-            wynik = gra.check_word(wpisane_slowo)
+            wynik = gra.check_word(wpisane_slowo, gra.target_word)
             print(f"Wynik analizy: {wynik}")
         else:
             print("Wyświetl komunikat na ekranie: Za mało liter!")
