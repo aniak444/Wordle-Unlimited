@@ -1,8 +1,11 @@
 import customtkinter as ctk
+from src.engine import GameEngine
 
 class WordleApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+        
+        self.game = GameEngine()
         
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
@@ -31,9 +34,7 @@ class WordleApp(ctk.CTk):
         self.grid_container.pack(expand=True, pady=(20, 20))
         
         self.tiles = []
-        
-        self.current_row = 0
-        self.current_col = 0
+        self.current_col = 0 
         
         self.create_game_grid()
         self.bind("<Key>", self.handle_keypress)
@@ -44,7 +45,6 @@ class WordleApp(ctk.CTk):
         
         for row_idx in range(row_count):
             current_row_tiles = []
-            
             for col_idx in range(column_count):
                 tile = ctk.CTkLabel(
                     self.grid_container,
@@ -61,14 +61,46 @@ class WordleApp(ctk.CTk):
             self.tiles.append(current_row_tiles)
 
     def handle_keypress(self, event):
+        if self.game.status != "IN_PROGRESS":
+            return
+
+        aktualny_rzad = self.game.current_row
+
+        if event.keysym == "Return":
+            if self.current_col == 5:
+                self.check_current_row()
+            return
+
+        if event.keysym == "BackSpace":
+            if self.current_col > 0:
+                self.current_col -= 1
+                self.tiles[aktualny_rzad][self.current_col].configure(text="")
+            return
+
         char = event.char
         if char.isalpha() and len(char) == 1:
             char_upper = char.upper()
-            
             if self.current_col < 5:
-                self.tiles[self.current_row][self.current_col].configure(text=char_upper)
+                self.tiles[aktualny_rzad][self.current_col].configure(text=char_upper)
                 self.current_col += 1
 
-if __name__ == "__main__":
-    app = WordleApp()
-    app.mainloop()
+    def check_current_row(self):
+        aktualny_rzad = self.game.current_row
+        
+        guess = ""
+        for col in range(5):
+            guess += self.tiles[aktualny_rzad][col].cget("text")
+
+        colors = self.game.check_word(guess)
+
+        color_map = {
+            "GREEN": "#538D4E",
+            "YELLOW": "#B59F3B",
+            "GRAY": "#3A3A3C"
+        }
+
+        for col in range(5):
+            status = colors[col]
+            self.tiles[aktualny_rzad][col].configure(fg_color=color_map[status])
+
+        self.current_col = 0
