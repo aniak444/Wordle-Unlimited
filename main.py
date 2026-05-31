@@ -30,7 +30,7 @@ if __name__ == "__main__":
     kliknieto_backspace(moje_kafelki)
     kliknieto_backspace(moje_kafelki)
     kliknieto_backspace(moje_kafelki)
-    print("---------------------\n")")
+    print("---------------------\n")
 
     proba1 = "KOLOR"
     wynik1 = gra.check_word(proba1)

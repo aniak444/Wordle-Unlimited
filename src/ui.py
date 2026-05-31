@@ -16,15 +16,16 @@ class WordleApp(ctk.CTk):
         
         self.tiles = []
         
-        # Triggering the grid rendering
         self.create_game_grid()
+
+        self.bind("<Key>", self.handle_keypress)
 
     def create_game_grid(self):
         row_count = 6
         column_count = 5
         
         for row_idx in range(row_count):
-            current_row_tiles = []  # Temporary list for the current row
+            current_row_tiles = []
             
             for col_idx in range(column_count):
                 tile = ctk.CTkLabel(
@@ -41,6 +42,13 @@ class WordleApp(ctk.CTk):
                 current_row_tiles.append(tile)
                 
             self.tiles.append(current_row_tiles)
+
+    def handle_keypress(self, event):
+        char = event.char 
+        
+        if char.isalpha() and len(char) == 1:
+            char_upper = char.upper()
+            print(f"Zaakceptowano literę: {char_upper}")
 
 if __name__ == "__main__":
     app = WordleApp()
