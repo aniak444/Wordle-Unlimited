@@ -18,7 +18,7 @@ class WordleApp(ctk.CTk):
             self,
             text="WORDLE",
             font=("Arial", 36, "bold"),
-            text_color="#45FF79"
+            text_color="#80C17A"
         )
         self.header_label.pack(pady=(25, 0))
         
@@ -26,7 +26,7 @@ class WordleApp(ctk.CTk):
             self,
             text="UNLIMITED",
             font=("Arial", 24),
-            text_color="#2DBA55"
+            text_color="#538D4E"
         )
         self.subheader_label.pack(pady=(0, 0))
         
@@ -104,3 +104,35 @@ class WordleApp(ctk.CTk):
             self.tiles[aktualny_rzad][col].configure(fg_color=color_map[status])
 
         self.current_col = 0
+
+        # Wyświetlanie ekranu wygranej
+        if self.game.status == "WIN":
+            self.show_win_overlay()
+
+    def show_win_overlay(self):
+        self.overlay_frame = ctk.CTkFrame(
+            self, 
+            width=300, 
+            height=180, 
+            fg_color="#1e1e1e", 
+            border_width=2, 
+            border_color="#538D4E"
+        )
+        self.overlay_frame.pack_propagate(False)
+        self.overlay_frame.place(relx=0.5, rely=0.5, anchor="center")
+        
+        title = ctk.CTkLabel(
+            self.overlay_frame, 
+            text="ZWYCIĘSTWO!", 
+            font=("Arial", 28, "bold"), 
+            text_color="#80C17A"
+        )
+        title.pack(pady=(30, 10))
+        
+        desc = ctk.CTkLabel(
+            self.overlay_frame, 
+            text=f"Odgadnięto: \"{self.game.target_word}\"\nLiczba prób: {self.game.current_row}", 
+            font=("Arial", 18),
+            text_color="#5AA054"
+        )
+        desc.pack(pady=(30, 30))
