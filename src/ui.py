@@ -108,22 +108,26 @@ class WordleApp(ctk.CTk):
         # Wyświetlanie ekranu wygranej
         if self.game.status == "WIN":
             self.show_win_overlay()
+        # Wyświetlanie ekranu przegranej
+        if self.game.status == "LOSE":
+            self.show_lose_overlay()
 
     def show_win_overlay(self):
         self.overlay_frame = ctk.CTkFrame(
             self, 
-            width=300, 
+            width=400, 
             height=180, 
             fg_color="#1e1e1e", 
             border_width=2, 
-            border_color="#538D4E"
+            border_color="#538D4E",
+            corner_radius=24,
         )
         self.overlay_frame.pack_propagate(False)
         self.overlay_frame.place(relx=0.5, rely=0.5, anchor="center")
         
         title = ctk.CTkLabel(
             self.overlay_frame, 
-            text="ZWYCIĘSTWO!", 
+            text="WYGRYWASZ :D", 
             font=("Arial", 28, "bold"), 
             text_color="#80C17A"
         )
@@ -131,8 +135,37 @@ class WordleApp(ctk.CTk):
         
         desc = ctk.CTkLabel(
             self.overlay_frame, 
-            text=f"Odgadnięto: \"{self.game.target_word}\"\nLiczba prób: {self.game.current_row}", 
+            text=f"Udało Ci się odgadnąć hasło \"{self.game.target_word}!\"\nLiczba prób: {self.game.current_row}", 
             font=("Arial", 18),
             text_color="#5AA054"
         )
         desc.pack(pady=(30, 30))
+
+    def show_lose_overlay(self):
+        self.overlay_frame = ctk.CTkFrame(
+            self, 
+            width=400, 
+            height=180, 
+            fg_color="#1e1e1e", 
+            border_width=2, 
+            border_color="#B52A2A",
+            corner_radius=24,
+        )
+        self.overlay_frame.pack_propagate(False)
+        self.overlay_frame.place(relx=0.5, rely=0.5, anchor="center")
+        
+        title = ctk.CTkLabel(
+            self.overlay_frame, 
+            text="PRZEGRYWASZ :(", 
+            font=("Arial", 28, "bold"), 
+            text_color="#E55B5B"
+        )
+        title.pack(pady=(30, 10))
+        
+        desc = ctk.CTkLabel(
+            self.overlay_frame, 
+            text=f"Hasłem było: \"{self.game.target_word}\"\nSpróbuj ponownie!",
+            font=("Arial", 18),
+            text_color="#CC4C4C"
+        )
+        desc.pack(pady=(15, 30))
