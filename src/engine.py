@@ -8,16 +8,17 @@ class GameEngine:
     def check_word(self, guess: str) -> list:
         guess = guess.upper()
         target = self.target_word.upper()
+        word_length = len(target)
         
-        result = ["GRAY"] * 5
+        result = ["GRAY"] * word_length
         target_letters = list(target)
 
-        for i in range(5):
+        for i in range(word_length):
             if guess[i] == target[i]:
                 result[i] = "GREEN"
                 target_letters[i] = None
 
-        for i in range(5):
+        for i in range(word_length):
             if result[i] == "GREEN":
                 continue
                 
@@ -28,7 +29,7 @@ class GameEngine:
 
         self.current_row += 1
         
-        if result == ["GREEN", "GREEN", "GREEN", "GREEN", "GREEN"]:
+        if result == ["GREEN"] * word_length:
             self.status = "WIN"
             
         elif self.current_row >= self.max_rows:
