@@ -61,3 +61,26 @@ def seed_database(json_path="words.json"):
     conn.commit()
     conn.close()
     print(f"Pomyślnie dodano {len(words_data)} słów do bazy danych")
+
+
+def get_random_word(length: int, difficulty: str) -> str:
+    # wyciaga losowe slowo z bazy danych dopasowane do parametrow z menu
+    difficulty = difficulty.upper()
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT word FROM words 
+        WHERE length = ? AND difficulty = ? 
+        ORDER BY RANDOM() LIMIT 1
+    ''', (length, difficulty))
+    
+    result = cursor.fetchone()
+    # ewentualne dodanie funkcji fallback w przypadku bledu polaczenia z baza danych
+    conn.close()
+    
+    if result:
+        return result[0]
+    else:
+        return "ERROR"
