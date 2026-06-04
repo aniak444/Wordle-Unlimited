@@ -5,15 +5,17 @@ import urllib.request
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 
-DB_PATH = "wordle.db"
+# dodanie zmiennych konfiguracyjnych
+DB_PATH = os.path.join(os.getcwd(), "wordle.db")
+TABLE_NAME = "words"
 
 def init_db():
-    #Tworzy tabele w bazie danych jesli jeszcze nei istnieje
+    # tworzy tabele w bazie danych jesli jeszcze nei istnieje
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS words (
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             word TEXT UNIQUE NOT NULL,
             length INTEGER NOT NULL,
@@ -25,7 +27,7 @@ def init_db():
     conn.close()
 
 def seed_database(json_path="words.json"):
-    #wczytuje słowa z pliku JSON do bazy, zapobiega duplikatom
+    # wczytuje słowa z pliku JSON do bazy, zapobiega duplikatom
     if not os.path.exists(json_path):
         print(f"Plik {json_path} nie istnieje")
         return
@@ -33,7 +35,7 @@ def seed_database(json_path="words.json"):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute("SELECT COUNT(*) FROM words")
+    cursor.execute(f"SELECT COUNT(*) FROM {TABLE_NAME}")
     count = cursor.fetchone()[0]
     
     if count > 0:
@@ -56,8 +58,8 @@ def seed_database(json_path="words.json"):
         length = entry.get("length", len(word))
         difficulty = entry.get("difficulty", "MEDIUM").upper()
         
-        cursor.execute('''
-            INSERT OR IGNORE INTO words (word, length, difficulty)
+        cursor.execute(f'''
+            INSERT OR IGNORE INTO {TABLE_NAME} (word, length, difficulty)
             VALUES (?, ?, ?)
         ''', (word, length, difficulty))
         
@@ -73,8 +75,8 @@ def get_random_word(length: int, difficulty: str) -> str:
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute('''
-        SELECT word FROM words 
+    cursor.execute(f'''
+        SELECT word FROM {TABLE_NAME} 
         WHERE length = ? AND difficulty = ? 
         ORDER BY RANDOM() LIMIT 1
     ''', (length, difficulty))
@@ -112,5 +114,5 @@ def is_word_valid(word: str) -> bool:
         return True
         
     except URLError:
-        print(f"Brak internet/blad api, slowo zostalo zaakceptowane")
+        print(f"Brak internetu/blad api, slowo zostalo zaakceptowane")
         return True
