@@ -1,3 +1,5 @@
+from src.database import is_word_valid
+
 class GameEngine:
     def __init__(self):
         self.target_word = "KODER"
@@ -7,6 +9,10 @@ class GameEngine:
 
     def check_word(self, guess: str) -> list:
         guess = guess.upper()
+
+        if not is_word_valid(guess):
+            return ["INVALID_WORD"]
+
         target = self.target_word.upper()
         word_length = len(target)
         

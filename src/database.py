@@ -1,6 +1,9 @@
 import sqlite3
 import json
 import os
+import urllib.request
+from urllib.error import HTTPError, URLError
+from urllib.parse import quote
 
 DB_PATH = "wordle.db"
 
@@ -84,3 +87,30 @@ def get_random_word(length: int, difficulty: str) -> str:
         return result[0]
     else:
         return "ERROR"
+    
+
+def is_word_valid(word: str) -> bool:
+    # walidacja slowa przez slownik jezyka polskiego
+    word_lower = word.lower()
+    safe_word = quote(word_lower)
+    url = f"https://sjp.pl/{safe_word}"
+    
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        
+        with urllib.request.urlopen(req, timeout=2) as response:
+            html = response.read().decode('utf-8')
+            
+            if "dopuszczalne w grach" in html:
+                return True
+            else:
+                return False
+                
+    except HTTPError as e:
+        if e.code == 404:
+            return False
+        return True
+        
+    except URLError:
+        print(f"Brak internet/blad api, slowo zostalo zaakceptowane")
+        return True
