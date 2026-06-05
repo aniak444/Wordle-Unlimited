@@ -12,6 +12,8 @@ class WordleApp(ctk.CTk):
         
         self.title("Wordle Unlimited")
         self.geometry("450x700")
+        
+        # Zadanie #59: Blokada zmiany rozmiaru okna głównego
         self.resizable(False, False)
         
         self.header_label = ctk.CTkLabel(
@@ -30,8 +32,8 @@ class WordleApp(ctk.CTk):
         )
         self.subheader_label.pack(pady=(0, 0))
         
-        # Task #87: Floating notification bubble (hidden by default)
-        self.notification_label = ctk.CTkLabel(
+        # Zadanie #91: Pływający dymek powiadomień (używany przy błędnym słowie)
+        self.etykieta_powiadomienia = ctk.CTkLabel(
             self,
             text="",
             font=("Verdana", 14, "bold"),
@@ -46,7 +48,7 @@ class WordleApp(ctk.CTk):
         self.grid_container.pack(expand=True, pady=(20, 20))
         
         self.hint_container = ctk.CTkFrame(self, fg_color="transparent")
-        self.hint_container.pack(pady=(0, 20)) 
+        self.hint_container.pack(pady=(0, 20))
         
         self.hint_button = ctk.CTkButton(
             self.hint_container,
@@ -57,16 +59,94 @@ class WordleApp(ctk.CTk):
             text_color="#FFFFFF",
             width=150,
             height=40,
-            corner_radius=8,
-            command=self.trigger_hint
+            corner_radius=8
         )
         self.hint_button.pack()
         
         self.tiles = []
-        self.current_col = 0 
+        self.current_col = 0
         
         self.create_game_grid()
         self.bind("<Key>", self.handle_keypress)
+
+        # ======================================================================
+        # INTEGRACJA SPRINT 2: Ekran menu startowego z wyborem trudności
+        # ======================================================================
+        self.stworz_menu_startowe()
+
+    def stworz_menu_startowe(self):
+        # Ramka przykrywająca widok gry na samym początku
+        self.ramka_menu = ctk.CTkFrame(self, fg_color="#1a1a1a")
+        self.ramka_menu.place(relx=0, rely=0, relwidth=1, relheight=1)
+        
+        etykieta_tytul = ctk.CTkLabel(self.ramka_menu, text="WORDLE", font=("Verdana", 36, "bold"), text_color="#80C17A")
+        etykieta_tytul.pack(pady=(150, 5))
+        
+        etykieta_podtytul = ctk.CTkLabel(self.ramka_menu, text="UNLIMITED", font=("Verdana", 24), text_color="#538D4E")
+        etykieta_podtytul.pack(pady=(0, 40))
+        
+        etykieta_wybor = ctk.CTkLabel(self.ramka_menu, text="Wybierz poziom trudności:", font=("Verdana", 14), text_color="#FFFFFF")
+        etykieta_wybor.pack(pady=10)
+        
+        # Rozwijana lista wyboru poziomu trudności
+        self.wybor_trudnosci = ctk.CTkOptionMenu(
+            self.ramka_menu, 
+            values=["Łatwy", "Średni", "Trudny"],
+            font=("Verdana", 14),
+            fg_color="#538D4E",
+            button_color="#3A3A3C",
+            button_hover_color="#80C17A"
+        )
+        self.wybor_trudnosci.pack(pady=10)
+        
+        # Zadanie #62: Dodanie kursora 'hand2' (rączki) do przycisku START
+        self.przycisk_start = ctk.CTkButton(
+            self.ramka_menu,
+            text="START",
+            font=("Verdana", 16, "bold"),
+            fg_color="#538D4E",
+            hover_color="#80C17A",
+            text_color="#FFFFFF",
+            width=150,
+            height=40,
+            corner_radius=8,
+            cursor="hand2",  # Kursor rączki
+            command=self.uruchom_gre
+        )
+        self.przycisk_start.pack(pady=30)
+        
+        # Zadanie #63: Bindowanie klawisza ENTER do akcji przycisku START w menu
+        self.bind("<Return>", self.obsluga_enter_menu)
+
+    def obsluga_enter_menu(self, zdarzenie):
+        self.uruchom_gre()
+
+    def uruchom_gre(self):
+        # Zadanie #63: Odpięcie powiązania Entera z menu startowego
+        self.unbind("<Return>")
+        
+        # Zadanie #64: Mapowanie polskich napisów z interfejsu na format tekstowy silnika (Enum)
+        mapa_trudnosci = {
+            "Łatwy": "EASY",
+            "Średni": "MEDIUM",
+            "Trudny": "HARD"
+        }
+        wybrany_tekst = self.wybor_trudnosci.get()
+        kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
+        
+        # Przekazanie zmapowanej wartości do silnika gry
+        if hasattr(self.game, 'set_difficulty'):
+            self.game.set_difficulty(kod_trudnosci)
+        elif hasattr(self.game, 'difficulty'):
+            self.game.difficulty = kod_trudnosci
+            
+        # Schowanie ramki menu, odsłaniające siatkę gry
+        self.ramka_menu.place_forget()
+
+    def pokaz_powiadomienie(self, komunikat, czas_trwania=2000):
+        self.etykieta_powiadomienia.configure(text=komunikat)
+        self.etykieta_powiadomienia.place(relx=0.5, rely=0.13, anchor="center")
+        self.after(czas_trwania, self.etykieta_powiadomienia.place_forget)
 
     def create_game_grid(self):
         row_count = 6
@@ -89,16 +169,6 @@ class WordleApp(ctk.CTk):
                 
             self.tiles.append(current_row_tiles)
 
-    def show_notification(self, message, duration=2000):
-        self.notification_label.configure(text=message)
-        self.notification_label.place(relx=0.5, rely=0.13, anchor="center")
-        self.after(duration, self.notification_label.place_forget)
-
-    def trigger_hint(self):
-        target = self.game.target_word
-        if target and len(target) > 0:
-            self.show_notification(f"Podpowiedź: Słowo zaczyna się na literę '{target[0]}'", duration=3000)
-
     def handle_keypress(self, event):
         if self.game.status != "IN_PROGRESS":
             return
@@ -108,8 +178,6 @@ class WordleApp(ctk.CTk):
         if event.keysym == "Return":
             if self.current_col == 5:
                 self.check_current_row()
-            else:
-                self.show_notification("Za mało liter!")
             return
 
         if event.keysym == "BackSpace":
@@ -134,9 +202,11 @@ class WordleApp(ctk.CTk):
 
         colors = self.game.check_word(guess)
 
-        # Zadanie #91: Obsługa błędu 'INVALID_WORD' (brak w słowniku)
-        if colors == ["INVALID_WORD"]:
-            self.show_notification("Słowo niedopuszczalne w grach!")
+        # ======================================================================
+        # Zadanie #91: Obsługa błędu 'INVALID_WORD' (brak słowa w bazie słownika)
+        # ======================================================================
+        if colors == ["INVALID_WORD"] or colors == "INVALID_WORD":
+            self.pokaz_powiadomienie("Słowo niedopuszczalne w grach!")
             return
 
         color_map = {
@@ -151,37 +221,42 @@ class WordleApp(ctk.CTk):
 
         self.current_col = 0
 
+        # Wyświetlanie ekranu wygranej
         if self.game.status == "WIN":
             self.show_win_overlay()
+        # Wyświetlanie ekranu przegranej
         if self.game.status == "LOSE":
             self.show_lose_overlay()
 
-    # ZADANIA #88, #89, #90, #92: Logika pełnego restartu gry
+    # ======================================================================
+    # ZADANIA #88, #89, #90, #92, #65: Logika pełnego twardego restartu gry
+    # ======================================================================
     def restartuj_gre(self):
-        # Zadanie #88: Reset stanu silnika gry w backendzie
+        # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
         self.game.reset()
         
-        # Zadanie #92: Reset lokalnego wskaźnika kolumn w UI
+        # Zadanie #92: Reset lokalnego wskaźnika kolumn we Frontendzie
         self.current_col = 0
         
-        # Zadania #89 & #90: Czyszczenie liter i przywracanie domyślnego tła kafelków
+        # Zadania #89 & #90: Wizualny reset siatki (czyszczenie tekstu i powrót do #2a2d32)
         for rzad_kafelkow in self.tiles:
             for pojedynczy_kafelek in rzad_kafelkow:
                 pojedynczy_kafelek.configure(
                     text="",             # #89: Usunięcie wpisanej litery
-                    fg_color="#2a2d32"    # #90: Przywrócenie ciemnoszarego koloru
+                    fg_color="#2a2d32"    # #90: Przywrócenie pierwotnego koloru tła kafelka
                 )
         
-        # Ukrycie okna końcowego
+        # Ukrycie nakładki końcowej
         self.overlay_frame.place_forget()
 
     def show_win_overlay(self):
+        # Zwiększona wysokość (z 180 na 240) pod przycisk resetu
         self.overlay_frame = ctk.CTkFrame(
-            self, 
-            width=400, 
-            height=240,  # Zwiększona wysokość, aby zmieścić przycisk
-            fg_color="#1e1e1e", 
-            border_width=2, 
+            self,
+            width=400,
+            height=240,
+            fg_color="#1e1e1e",
+            border_width=2,
             border_color="#538D4E",
             corner_radius=24,
         )
@@ -189,22 +264,22 @@ class WordleApp(ctk.CTk):
         self.overlay_frame.place(relx=0.5, rely=0.5, anchor="center")
         
         title = ctk.CTkLabel(
-            self.overlay_frame, 
-            text="WYGRYWASZ :D", 
-            font=("Verdana", 28, "bold"), 
+            self.overlay_frame,
+            text="WYGRYWASZ :D",
+            font=("Verdana", 28, "bold"),
             text_color="#538D4E"
         )
         title.pack(pady=(20, 5))
         
         desc = ctk.CTkLabel(
-            self.overlay_frame, 
-            text=f"Udało Ci się odgadnąć hasło \"{self.game.target_word}!\"\nLiczba prób: {self.game.current_row}", 
+            self.overlay_frame,
+            text=f"Udało Ci się odgadnąć hasło \"{self.game.target_word}!\"\nLiczba prób: {self.game.current_row}",
             font=("Verdana", 18),
             text_color="#80C17A"
         )
         desc.pack(pady=(10, 15))
 
-        # Przycisk restartu powiązany z funkcją resetującą
+        # Podpięcie restartu pod przycisk w oknie wygranej (Task #62 kursor rączki)
         przycisk_restartu = ctk.CTkButton(
             self.overlay_frame,
             text="Graj Ponownie",
@@ -212,17 +287,19 @@ class WordleApp(ctk.CTk):
             fg_color="#538D4E",
             hover_color="#80C17A",
             text_color="#FFFFFF",
+            cursor="hand2",
             command=self.restartuj_gre
         )
         przycisk_restartu.pack(pady=(0, 15))
 
     def show_lose_overlay(self):
+        # Zwiększona wysokość (z 180 na 240) pod przycisk resetu
         self.overlay_frame = ctk.CTkFrame(
-            self, 
-            width=400, 
-            height=240,  # Zwiększona wysokość, aby zmieścić przycisk
-            fg_color="#1e1e1e", 
-            border_width=2, 
+            self,
+            width=400,
+            height=240,
+            fg_color="#1e1e1e",
+            border_width=2,
             border_color="#B52A2A",
             corner_radius=24,
         )
@@ -230,22 +307,22 @@ class WordleApp(ctk.CTk):
         self.overlay_frame.place(relx=0.5, rely=0.5, anchor="center")
         
         title = ctk.CTkLabel(
-            self.overlay_frame, 
-            text="PRZEGRYWASZ :(", 
-            font=("Verdana", 28, "bold"), 
+            self.overlay_frame,
+            text="PRZEGRYWASZ :(",
+            font=("Verdana", 28, "bold"),
             text_color="#B52A2A"
         )
         title.pack(pady=(20, 5))
         
         desc = ctk.CTkLabel(
-            self.overlay_frame, 
+            self.overlay_frame,
             text=f"Hasłem było: \"{self.game.target_word}\"\nSpróbuj ponownie!",
             font=("Verdana", 18),
             text_color="#F17979"
         )
         desc.pack(pady=(10, 15))
 
-        # Przycisk restartu powiązany z funkcją resetującą
+        # Podpięcie restartu pod przycisk w oknie przegranej (Task #62 kursor rączki)
         przycisk_restartu = ctk.CTkButton(
             self.overlay_frame,
             text="Graj Ponownie",
@@ -253,6 +330,7 @@ class WordleApp(ctk.CTk):
             fg_color="#B52A2A",
             hover_color="#F17979",
             text_color="#FFFFFF",
+            cursor="hand2",
             command=self.restartuj_gre
         )
         przycisk_restartu.pack(pady=(0, 15))
