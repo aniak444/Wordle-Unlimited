@@ -33,6 +33,9 @@ class WordleApp(ctk.CTk):
         self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
         self.grid_container.pack(expand=True, pady=(20, 20))
         
+        self.hint_container = ctk.CTkFrame(self, fg_color="transparent")
+        self.hint_container.pack(pady=(0, 20)) 
+        
         self.tiles = []
         self.current_col = 0 
         
