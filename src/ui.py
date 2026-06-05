@@ -17,7 +17,7 @@ class WordleApp(ctk.CTk):
         self.header_label = ctk.CTkLabel(
             self,
             text="WORDLE",
-            font=("Arial", 36, "bold"),
+            font=("Verdana", 36, "bold"),
             text_color="#80C17A"
         )
         self.header_label.pack(pady=(25, 0))
@@ -25,7 +25,7 @@ class WordleApp(ctk.CTk):
         self.subheader_label = ctk.CTkLabel(
             self,
             text="UNLIMITED",
-            font=("Arial", 24),
+            font=("Verdana", 24),
             text_color="#538D4E"
         )
         self.subheader_label.pack(pady=(0, 0))
@@ -35,6 +35,19 @@ class WordleApp(ctk.CTk):
         
         self.hint_container = ctk.CTkFrame(self, fg_color="transparent")
         self.hint_container.pack(pady=(0, 20)) 
+        
+        self.hint_button = ctk.CTkButton(
+            self.hint_container,
+            text="PODPOWIEDŹ",
+            font=("Verdana", 16),
+            fg_color="#538D4E",
+            hover_color="#80C17A",
+            text_color="#FFFFFF",
+            width=150,
+            height=40,
+            corner_radius=8
+        )
+        self.hint_button.pack()
         
         self.tiles = []
         self.current_col = 0 
@@ -56,7 +69,7 @@ class WordleApp(ctk.CTk):
                     height=60,
                     fg_color="#2a2d32",
                     corner_radius=4,
-                    font=("Arial", 24, "bold")
+                    font=("Verdana", 24, "bold")
                 )
                 tile.grid(row=row_idx, column=col_idx, padx=6, pady=6)
                 current_row_tiles.append(tile)
@@ -131,16 +144,16 @@ class WordleApp(ctk.CTk):
         title = ctk.CTkLabel(
             self.overlay_frame, 
             text="WYGRYWASZ :D", 
-            font=("Arial", 28, "bold"), 
-            text_color="#80C17A"
+            font=("Verdana", 28, "bold"), 
+            text_color="#538D4E"
         )
         title.pack(pady=(30, 10))
         
         desc = ctk.CTkLabel(
             self.overlay_frame, 
             text=f"Udało Ci się odgadnąć hasło \"{self.game.target_word}!\"\nLiczba prób: {self.game.current_row}", 
-            font=("Arial", 18),
-            text_color="#5AA054"
+            font=("Verdana", 18),
+            text_color="#80C17A"
         )
         desc.pack(pady=(30, 30))
 
@@ -160,15 +173,15 @@ class WordleApp(ctk.CTk):
         title = ctk.CTkLabel(
             self.overlay_frame, 
             text="PRZEGRYWASZ :(", 
-            font=("Arial", 28, "bold"), 
-            text_color="#E55B5B"
+            font=("Verdana", 28, "bold"), 
+            text_color="#B52A2A"
         )
         title.pack(pady=(30, 10))
         
         desc = ctk.CTkLabel(
             self.overlay_frame, 
             text=f"Hasłem było: \"{self.game.target_word}\"\nSpróbuj ponownie!",
-            font=("Arial", 18),
-            text_color="#CC4C4C"
+            font=("Verdana", 18),
+            text_color="#F17979"
         )
         desc.pack(pady=(15, 30))
