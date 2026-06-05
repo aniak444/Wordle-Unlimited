@@ -36,6 +36,19 @@ class WordleApp(ctk.CTk):
         self.hint_container = ctk.CTkFrame(self, fg_color="transparent")
         self.hint_container.pack(pady=(0, 20)) 
         
+        self.hint_button = ctk.CTkButton(
+            self.hint_container,
+            text="PODPOWIEDŹ",
+            font=("Arial", 16, "bold"),
+            fg_color="#538D4E",
+            hover_color="#80C17A",
+            text_color="#FFFFFF",
+            width=150,
+            height=40,
+            corner_radius=8
+        )
+        self.hint_button.pack()
+        
         self.tiles = []
         self.current_col = 0 
         
