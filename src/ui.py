@@ -134,6 +134,7 @@ class WordleApp(ctk.CTk):
 
         colors = self.game.check_word(guess)
 
+        # Zadanie #91: Obsługa błędu 'INVALID_WORD' (brak w słowniku)
         if colors == ["INVALID_WORD"]:
             self.show_notification("Słowo niedopuszczalne w grach!")
             return
@@ -155,11 +156,30 @@ class WordleApp(ctk.CTk):
         if self.game.status == "LOSE":
             self.show_lose_overlay()
 
+    # ZADANIA #88, #89, #90, #92: Logika pełnego restartu gry
+    def restartuj_gre(self):
+        # Zadanie #88: Reset stanu silnika gry w backendzie
+        self.game.reset()
+        
+        # Zadanie #92: Reset lokalnego wskaźnika kolumn w UI
+        self.current_col = 0
+        
+        # Zadania #89 & #90: Czyszczenie liter i przywracanie domyślnego tła kafelków
+        for rzad_kafelkow in self.tiles:
+            for pojedynczy_kafelek in rzad_kafelkow:
+                pojedynczy_kafelek.configure(
+                    text="",             # #89: Usunięcie wpisanej litery
+                    fg_color="#2a2d32"    # #90: Przywrócenie ciemnoszarego koloru
+                )
+        
+        # Ukrycie okna końcowego
+        self.overlay_frame.place_forget()
+
     def show_win_overlay(self):
         self.overlay_frame = ctk.CTkFrame(
             self, 
             width=400, 
-            height=180, 
+            height=240,  # Zwiększona wysokość, aby zmieścić przycisk
             fg_color="#1e1e1e", 
             border_width=2, 
             border_color="#538D4E",
@@ -174,7 +194,7 @@ class WordleApp(ctk.CTk):
             font=("Verdana", 28, "bold"), 
             text_color="#538D4E"
         )
-        title.pack(pady=(30, 10))
+        title.pack(pady=(20, 5))
         
         desc = ctk.CTkLabel(
             self.overlay_frame, 
@@ -182,13 +202,25 @@ class WordleApp(ctk.CTk):
             font=("Verdana", 18),
             text_color="#80C17A"
         )
-        desc.pack(pady=(30, 30))
+        desc.pack(pady=(10, 15))
+
+        # Przycisk restartu powiązany z funkcją resetującą
+        przycisk_restartu = ctk.CTkButton(
+            self.overlay_frame,
+            text="Graj Ponownie",
+            font=("Verdana", 16, "bold"),
+            fg_color="#538D4E",
+            hover_color="#80C17A",
+            text_color="#FFFFFF",
+            command=self.restartuj_gre
+        )
+        przycisk_restartu.pack(pady=(0, 15))
 
     def show_lose_overlay(self):
         self.overlay_frame = ctk.CTkFrame(
             self, 
             width=400, 
-            height=180, 
+            height=240,  # Zwiększona wysokość, aby zmieścić przycisk
             fg_color="#1e1e1e", 
             border_width=2, 
             border_color="#B52A2A",
@@ -203,7 +235,7 @@ class WordleApp(ctk.CTk):
             font=("Verdana", 28, "bold"), 
             text_color="#B52A2A"
         )
-        title.pack(pady=(30, 10))
+        title.pack(pady=(20, 5))
         
         desc = ctk.CTkLabel(
             self.overlay_frame, 
@@ -211,4 +243,16 @@ class WordleApp(ctk.CTk):
             font=("Verdana", 18),
             text_color="#F17979"
         )
-        desc.pack(pady=(15, 30))
+        desc.pack(pady=(10, 15))
+
+        # Przycisk restartu powiązany z funkcją resetującą
+        przycisk_restartu = ctk.CTkButton(
+            self.overlay_frame,
+            text="Graj Ponownie",
+            font=("Verdana", 16, "bold"),
+            fg_color="#B52A2A",
+            hover_color="#F17979",
+            text_color="#FFFFFF",
+            command=self.restartuj_gre
+        )
+        przycisk_restartu.pack(pady=(0, 15))
