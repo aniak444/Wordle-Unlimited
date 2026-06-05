@@ -30,6 +30,18 @@ class WordleApp(ctk.CTk):
         )
         self.subheader_label.pack(pady=(0, 0))
         
+        # Task #87: Floating notification bubble (hidden by default)
+        self.notification_label = ctk.CTkLabel(
+            self,
+            text="",
+            font=("Verdana", 14, "bold"),
+            text_color="#FFFFFF",
+            fg_color="#3A3A3C",
+            corner_radius=6,
+            height=35,
+            padx=15
+        )
+        
         self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
         self.grid_container.pack(expand=True, pady=(20, 20))
         
@@ -45,7 +57,8 @@ class WordleApp(ctk.CTk):
             text_color="#FFFFFF",
             width=150,
             height=40,
-            corner_radius=8
+            corner_radius=8,
+            command=self.trigger_hint
         )
         self.hint_button.pack()
         
@@ -76,6 +89,16 @@ class WordleApp(ctk.CTk):
                 
             self.tiles.append(current_row_tiles)
 
+    def show_notification(self, message, duration=2000):
+        self.notification_label.configure(text=message)
+        self.notification_label.place(relx=0.5, rely=0.13, anchor="center")
+        self.after(duration, self.notification_label.place_forget)
+
+    def trigger_hint(self):
+        target = self.game.target_word
+        if target and len(target) > 0:
+            self.show_notification(f"Podpowiedź: Słowo zaczyna się na literę '{target[0]}'", duration=3000)
+
     def handle_keypress(self, event):
         if self.game.status != "IN_PROGRESS":
             return
@@ -85,6 +108,8 @@ class WordleApp(ctk.CTk):
         if event.keysym == "Return":
             if self.current_col == 5:
                 self.check_current_row()
+            else:
+                self.show_notification("Za mało liter!")
             return
 
         if event.keysym == "BackSpace":
@@ -109,6 +134,10 @@ class WordleApp(ctk.CTk):
 
         colors = self.game.check_word(guess)
 
+        if colors == ["INVALID_WORD"]:
+            self.show_notification("Słowo niedopuszczalne w grach!")
+            return
+
         color_map = {
             "GREEN": "#538D4E",
             "YELLOW": "#B59F3B",
@@ -121,10 +150,8 @@ class WordleApp(ctk.CTk):
 
         self.current_col = 0
 
-        # Wyświetlanie ekranu wygranej
         if self.game.status == "WIN":
             self.show_win_overlay()
-        # Wyświetlanie ekranu przegranej
         if self.game.status == "LOSE":
             self.show_lose_overlay()
 
