@@ -54,12 +54,13 @@ class WordleApp(ctk.CTk):
             self.hint_container,
             text="PODPOWIEDŹ",
             font=("Verdana", 16),
-            fg_color="#538D4E",
+            fg_color="#3A3A3C",     # ZADANIE #79: Startowy kolor zablokowanego przycisku (ciemnoszary)
             hover_color="#80C17A",
-            text_color="#FFFFFF",
+            text_color="#777777",   # ZADANIE #79: Startowy, zgaszony kolor tekstu
             width=150,
             height=40,
-            corner_radius=8
+            corner_radius=8,
+            state="disabled"        # ZADANIE #79: Przycisk jest domyślnie zablokowany na początku gry
         )
         self.hint_button.pack()
         
@@ -110,7 +111,7 @@ class WordleApp(ctk.CTk):
             width=150,
             height=40,
             corner_radius=8,
-            cursor="hand2",  # Kursor rączki
+            cursor="hand2",
             command=self.uruchom_gre
         )
         self.przycisk_start.pack(pady=30)
@@ -221,6 +222,14 @@ class WordleApp(ctk.CTk):
 
         self.current_col = 0
 
+        # ZADANIE #79: Dynamiczna aktywacja przycisku Podpowiedzi i zmiana kolorów
+        if self.game.status == "IN_PROGRESS" and self.game.current_row >= 3:
+            self.hint_button.configure(
+                state="normal",
+                fg_color="#538D4E",   # Zmiana na aktywny zielony
+                text_color="#FFFFFF"  # Zmiana na aktywny biały tekst
+            )
+
         # Wyświetlanie ekranu wygranej
         if self.game.status == "WIN":
             self.show_win_overlay()
@@ -238,6 +247,13 @@ class WordleApp(ctk.CTk):
         # Zadanie #92: Reset lokalnego wskaźnika kolumn we Frontendzie
         self.current_col = 0
         
+        # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
+        self.hint_button.configure(
+            state="disabled",
+            fg_color="#3A3A3C",   # Powrót do ciemnoszarego
+            text_color="#777777"  # Powrót do zgaszonego tekstu
+        )
+        
         # Zadania #89 & #90: Wizualny reset siatki (czyszczenie tekstu i powrót do #2a2d32)
         for rzad_kafelkow in self.tiles:
             for pojedynczy_kafelek in rzad_kafelkow:
@@ -250,7 +266,6 @@ class WordleApp(ctk.CTk):
         self.overlay_frame.place_forget()
 
     def show_win_overlay(self):
-        # Zwiększona wysokość (z 180 na 240) pod przycisk resetu
         self.overlay_frame = ctk.CTkFrame(
             self,
             width=400,
@@ -279,7 +294,6 @@ class WordleApp(ctk.CTk):
         )
         desc.pack(pady=(10, 15))
 
-        # Podpięcie restartu pod przycisk w oknie wygranej (Task #62 kursor rączki)
         przycisk_restartu = ctk.CTkButton(
             self.overlay_frame,
             text="Graj Ponownie",
@@ -293,7 +307,6 @@ class WordleApp(ctk.CTk):
         przycisk_restartu.pack(pady=(0, 15))
 
     def show_lose_overlay(self):
-        # Zwiększona wysokość (z 180 na 240) pod przycisk resetu
         self.overlay_frame = ctk.CTkFrame(
             self,
             width=400,
@@ -322,7 +335,6 @@ class WordleApp(ctk.CTk):
         )
         desc.pack(pady=(10, 15))
 
-        # Podpięcie restartu pod przycisk w oknie przegranej (Task #62 kursor rączki)
         przycisk_restartu = ctk.CTkButton(
             self.overlay_frame,
             text="Graj Ponownie",
