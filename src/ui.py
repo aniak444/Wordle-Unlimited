@@ -148,6 +148,7 @@ class WordleApp(ctk.CTk):
     def pokaz_powiadomienie(self, komunikat, czas_trwania=2000, kolor_tekstu="#FFFFFF", kolor_tla="#3A3A3C", rely=0.13):
         self.etykieta_powiadomienia.configure(text=komunikat, text_color=kolor_tekstu, fg_color=kolor_tla)
         self.etykieta_powiadomienia.place(relx=0.5, rely=rely, anchor="center")
+        self.etykieta_powiadomienia.lift()
         self.after(czas_trwania, self.etykieta_powiadomienia.place_forget)
 
     def create_game_grid(self):
@@ -213,7 +214,8 @@ class WordleApp(ctk.CTk):
         # Zadanie #91: Obsługa błędu 'INVALID_WORD' (brak słowa w bazie słownika)
         # ======================================================================
         if colors == ["INVALID_WORD"] or colors == "INVALID_WORD":
-            self.pokaz_powiadomienie(komunikat="Słowo niedopuszczalne w grach!",
+            self.pokaz_powiadomienie(
+                komunikat="Słowo niedopuszczalne w grach!",
                 czas_trwania=2000,
                 kolor_tekstu="#FF4D4D",
                 kolor_tla="transparent",
