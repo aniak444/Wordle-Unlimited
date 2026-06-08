@@ -67,8 +67,8 @@ class WordleApp(ctk.CTk):
         self.tiles = []
         self.current_col = 0
         
-        self.create_game_grid()
         self.bind("<Key>", self.handle_keypress)
+        self.stworz_menu_startowe()
 
         # ======================================================================
         # INTEGRACJA SPRINT 2: Ekran menu startowego z wyborem trudności
@@ -141,6 +141,7 @@ class WordleApp(ctk.CTk):
         elif hasattr(self.game, 'difficulty'):
             self.game.difficulty = kod_trudnosci
             
+        self.create_game_grid()
         # Schowanie ramki menu, odsłaniające siatkę gry
         self.ramka_menu.place_forget()
 
@@ -150,6 +151,11 @@ class WordleApp(ctk.CTk):
         self.after(czas_trwania, self.etykieta_powiadomienia.place_forget)
 
     def create_game_grid(self):
+        
+        for widget in self.grid_container.winfo_children():
+            widget.destroy()
+        self.tiles = []
+        
         row_count = 6
         column_count = 5
         
@@ -177,7 +183,7 @@ class WordleApp(ctk.CTk):
         aktualny_rzad = self.game.current_row
 
         if event.keysym == "Return":
-            if self.current_col == 5:
+            if self.current_col == self.word_length:
                 self.check_current_row()
             return
 
@@ -190,7 +196,7 @@ class WordleApp(ctk.CTk):
         char = event.char
         if char.isalpha() and len(char) == 1:
             char_upper = char.upper()
-            if self.current_col < 5:
+            if self.current_col < self.word_length:
                 self.tiles[aktualny_rzad][self.current_col].configure(text=char_upper)
                 self.current_col += 1
 
@@ -198,7 +204,7 @@ class WordleApp(ctk.CTk):
         aktualny_rzad = self.game.current_row
         
         guess = ""
-        for col in range(5):
+        for col in range(self.word_length):
             guess += self.tiles[aktualny_rzad][col].cget("text")
 
         colors = self.game.check_word(guess)
@@ -216,7 +222,7 @@ class WordleApp(ctk.CTk):
             "GRAY": "#3A3A3C"
         }
 
-        for col in range(5):
+        for col in range(self.word_length):
             status = colors[col]
             self.tiles[aktualny_rzad][col].configure(fg_color=color_map[status])
 
