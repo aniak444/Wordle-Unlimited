@@ -54,15 +54,37 @@ class WordleApp(ctk.CTk):
             self.hint_container,
             text="PODPOWIEDŹ",
             font=("Verdana", 16),
-            fg_color="#3A3A3C",     # ZADANIE #79: Startowy kolor zablokowanego przycisku (ciemnoszary)
+            fg_color="#3A3A3C",
             hover_color="#80C17A",
-            text_color="#777777",   # ZADANIE #79: Startowy, zgaszony kolor tekstu
+            text_color="#777777",
             width=150,
             height=40,
             corner_radius=8,
-            state="disabled"        # ZADANIE #79: Przycisk jest domyślnie zablokowany na początku gry
+            state="disabled",
+            command=self.pokaz_podpowiedz  # ZADANIE #80: Podpięcie komendy wyświetlającej dymek
         )
         self.hint_button.pack()
+        
+        # ZADANIE #80: Konstrukcja dymka informacyjnego (Popup/Tooltip)
+        self.hint_popup_frame = ctk.CTkFrame(
+            self,
+            width=350,
+            height=80,
+            fg_color="#1e1e1e",
+            border_width=2,
+            border_color="#B59F3B",
+            corner_radius=12
+        )
+        self.hint_popup_frame.pack_propagate(False)
+        
+        self.hint_popup_label = ctk.CTkLabel(
+            self.hint_popup_frame,
+            text="Placeholder (powinno być tekstem z bazy)...",
+            font=("Verdana", 14),
+            text_color="#FFFFFF",
+            wraplength=320
+        )
+        self.hint_popup_label.pack(expand=True, padx=10, pady=10)
         
         self.tiles = []
         self.current_col = 0
@@ -143,6 +165,10 @@ class WordleApp(ctk.CTk):
             
         # Schowanie ramki menu, odsłaniające siatkę gry
         self.ramka_menu.place_forget()
+
+    # ZADANIE #80: Funkcja wyświetlająca dymek po kliknięciu
+    def pokaz_podpowiedz(self):
+        self.hint_popup_frame.place(relx=0.5, rely=0.76, anchor="center")
 
     def pokaz_powiadomienie(self, komunikat, czas_trwania=2000):
         self.etykieta_powiadomienia.configure(text=komunikat)
@@ -226,8 +252,8 @@ class WordleApp(ctk.CTk):
         if self.game.status == "IN_PROGRESS" and self.game.current_row >= 3:
             self.hint_button.configure(
                 state="normal",
-                fg_color="#538D4E",   # Zmiana na aktywny zielony
-                text_color="#FFFFFF"  # Zmiana na aktywny biały tekst
+                fg_color="#538D4E",
+                text_color="#FFFFFF"
             )
 
         # Wyświetlanie ekranu wygranej
@@ -250,9 +276,12 @@ class WordleApp(ctk.CTk):
         # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
         self.hint_button.configure(
             state="disabled",
-            fg_color="#3A3A3C",   # Powrót do ciemnoszarego
-            text_color="#777777"  # Powrót do zgaszonego tekstu
+            fg_color="#3A3A3C",
+            text_color="#777777"
         )
+        
+        # ZADANIE #80: Ukrycie dymka podpowiedzi, jeśli był otwarty
+        self.hint_popup_frame.place_forget()
         
         # Zadania #89 & #90: Wizualny reset siatki (czyszczenie tekstu i powrót do #2a2d32)
         for rzad_kafelkow in self.tiles:
