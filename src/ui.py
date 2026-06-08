@@ -66,9 +66,9 @@ class WordleApp(ctk.CTk):
         
         self.tiles = []
         self.current_col = 0
+        self.word_length = 5
         
         self.bind("<Key>", self.handle_keypress)
-        self.stworz_menu_startowe()
 
         # ======================================================================
         # INTEGRACJA SPRINT 2: Ekran menu startowego z wyborem trudności
@@ -147,7 +147,7 @@ class WordleApp(ctk.CTk):
 
     def pokaz_powiadomienie(self, komunikat, czas_trwania=2000, kolor_tekstu="#FFFFFF", kolor_tla="#3A3A3C", rely=0.13):
         self.etykieta_powiadomienia.configure(text=komunikat, text_color=kolor_tekstu, fg_color=kolor_tla)
-        self.etykieta_powiadomienia.place(relx=0.5, rely=0.13, anchor="center")
+        self.etykieta_powiadomienia.place(relx=0.5, rely=rely, anchor="center")
         self.after(czas_trwania, self.etykieta_powiadomienia.place_forget)
 
     def create_game_grid(self):
@@ -157,7 +157,7 @@ class WordleApp(ctk.CTk):
         self.tiles = []
         
         row_count = 6
-        column_count = 5
+        column_count = self.word_length
         
         for row_idx in range(row_count):
             current_row_tiles = []
@@ -252,7 +252,15 @@ class WordleApp(ctk.CTk):
     # ======================================================================
     def restartuj_gre(self):
         # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
-        self.game.reset()
+        self.game = GameEngine()
+
+        mapa_trudnosci = {
+            "Łatwy": "EASY",
+            "Średni": "MEDIUM",
+            "Trudny": "HARD"
+        }
+        wybrany_tekst = self.wybor_trudnosci.get()
+        kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
         
         # Zadanie #92: Reset lokalnego wskaźnika kolumn we Frontendzie
         self.current_col = 0
