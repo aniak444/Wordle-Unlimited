@@ -145,8 +145,8 @@ class WordleApp(ctk.CTk):
         # Schowanie ramki menu, odsłaniające siatkę gry
         self.ramka_menu.place_forget()
 
-    def pokaz_powiadomienie(self, komunikat, czas_trwania=2000):
-        self.etykieta_powiadomienia.configure(text=komunikat)
+    def pokaz_powiadomienie(self, komunikat, czas_trwania=2000, kolor_tekstu="#FFFFFF", kolor_tla="#3A3A3C", rely=0.13):
+        self.etykieta_powiadomienia.configure(text=komunikat, text_color=kolor_tekstu, fg_color=kolor_tla)
         self.etykieta_powiadomienia.place(relx=0.5, rely=0.13, anchor="center")
         self.after(czas_trwania, self.etykieta_powiadomienia.place_forget)
 
@@ -213,7 +213,11 @@ class WordleApp(ctk.CTk):
         # Zadanie #91: Obsługa błędu 'INVALID_WORD' (brak słowa w bazie słownika)
         # ======================================================================
         if colors == ["INVALID_WORD"] or colors == "INVALID_WORD":
-            self.pokaz_powiadomienie("Słowo niedopuszczalne w grach!")
+            self.pokaz_powiadomienie(komunikat="Słowo niedopuszczalne w grach!",
+                czas_trwania=2000,
+                kolor_tekstu="#FF4D4D",
+                kolor_tla="transparent",
+                rely=0.78)
             return
 
         color_map = {
