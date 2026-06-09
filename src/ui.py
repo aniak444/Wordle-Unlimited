@@ -268,7 +268,7 @@ class WordleApp(ctk.CTk):
     # ======================================================================
     def restartuj_gre(self):
         # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
-        self.game.reset()
+        self.game.reset_state()
         
         # Zadanie #92: Reset lokalnego wskaźnika kolumn we Frontendzie
         self.current_col = 0
@@ -317,7 +317,7 @@ class WordleApp(ctk.CTk):
         
         desc = ctk.CTkLabel(
             self.overlay_frame,
-            text=f"Udało Ci się odgadnąć hasło \"{self.game.target_word}!\"\nLiczba prób: {self.game.current_row}",
+            text=f"Udało Ci się odgadnąć hasło \"{self.game.get_target_word()}!\"\nLiczba prób: {self.game.current_row}",
             font=("Verdana", 18),
             text_color="#80C17A"
         )
@@ -358,7 +358,7 @@ class WordleApp(ctk.CTk):
         
         desc = ctk.CTkLabel(
             self.overlay_frame,
-            text=f"Hasłem było: \"{self.game.target_word}\"\nSpróbuj ponownie!",
+            text=f"Hasłem było: \"{self.game.get_target_word()}\"\nSpróbuj ponownie!",
             font=("Verdana", 18),
             text_color="#F17979"
         )
