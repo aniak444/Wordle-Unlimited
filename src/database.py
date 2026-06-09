@@ -19,7 +19,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             word TEXT UNIQUE NOT NULL,
             length INTEGER NOT NULL,
-            difficulty TEXT NOT NULL
+            difficulty TEXT NOT NULL,
+            hint TEXT DEFAULT 'Brak podpowiedzi'
         )
     ''')
     
@@ -57,18 +58,19 @@ def seed_database(json_path="words.json"):
         word = entry.get("word", "").upper()
         length = entry.get("length", len(word))
         difficulty = entry.get("difficulty", "MEDIUM").upper()
+        hint = entry.get("hint", "Brak podpowiedzi")
         
         cursor.execute(f'''
-            INSERT OR IGNORE INTO {TABLE_NAME} (word, length, difficulty)
-            VALUES (?, ?, ?)
-        ''', (word, length, difficulty))
+            INSERT OR IGNORE INTO {TABLE_NAME} (word, length, difficulty, hint)
+            VALUES (?, ?, ?, ?)
+        ''', (word, length, difficulty, hint))
         
     conn.commit()
     conn.close()
     print(f"Pomyślnie dodano {len(words_data)} słów do bazy danych")
 
 
-def get_random_word(length: int, difficulty: str) -> str:
+def get_random_word(length: int, difficulty: str) -> tuple:
     # wyciaga losowe slowo z bazy danych dopasowane do parametrow z menu
     difficulty = difficulty.upper()
     
@@ -76,19 +78,28 @@ def get_random_word(length: int, difficulty: str) -> str:
     cursor = conn.cursor()
     
     cursor.execute(f'''
-        SELECT word FROM {TABLE_NAME} 
+        SELECT word, hint FROM {TABLE_NAME} 
         WHERE length = ? AND difficulty = ? 
         ORDER BY RANDOM() LIMIT 1
     ''', (length, difficulty))
     
     result = cursor.fetchone()
-    # ewentualne dodanie funkcji fallback w przypadku bledu polaczenia z baza danych
+    
+    if result is None:
+        print(f"Brak w bazie słowa ({length} liter, {difficulty}). Fallback")
+        cursor.execute(f'''
+            SELECT word, hint FROM {TABLE_NAME} 
+            WHERE length = ? 
+            ORDER BY RANDOM() LIMIT 1
+        ''', (length,))
+        result = cursor.fetchone()
+
     conn.close()
     
     if result:
-        return result[0]
+        return result[0], result[1]
     else:
-        return "ERROR"
+        return "ERROR", "Brak podpowiedzi"
     
 
 def is_word_valid(word: str) -> bool:
