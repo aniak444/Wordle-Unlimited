@@ -96,6 +96,48 @@ class WordleApp(ctk.CTk):
         # INTEGRACJA SPRINT 2: Ekran menu startowego z wyborem trudności
         # ======================================================================
         self.stworz_menu_startowe()
+    def stworz_menu_startowe(self):
+        # Tworzymy główną ramkę menu, która zasłoni całe okno
+        self.ramka_menu = ctk.CTkFrame(self, fg_color="#1a1a1a")
+        self.ramka_menu.place(relx=0, rely=0, relwidth=1, relheight=1)
+        
+        # Główny tytuł
+        etykieta_tytul = ctk.CTkLabel(
+            self.ramka_menu, 
+            text="WORDLE", 
+            font=("Verdana", 36, "bold"), 
+            text_color="#80C17A"
+        )
+        etykieta_tytul.pack(pady=(150, 5))
+        
+        # Podtytuł
+        etykieta_podtytul = ctk.CTkLabel(
+            self.ramka_menu, 
+            text="UNLIMITED", 
+            font=("Verdana", 24), 
+            text_color="#538D4E"
+        )
+        etykieta_podtytul.pack(pady=(0, 40))
+        
+        # Przycisk START
+        self.przycisk_start = ctk.CTkButton(
+            self.ramka_menu,
+            text="START",
+            font=("Verdana", 16, "bold"),
+            fg_color="#538D4E",
+            hover_color="#80C17A",
+            text_color="#FFFFFF",
+            width=150,
+            height=40,
+            corner_radius=8,
+            cursor="hand2",
+            command=self.uruchom_gre
+        )
+        self.przycisk_start.pack(pady=30)
+
+    def uruchom_gre(self):
+        # Ta funkcja chowa menu i odsłania właściwą siatkę gry
+        self.ramka_menu.place_forget()
 
     def stworz_menu_startowe(self):
         # Ramka przykrywająca widok gry na samym początku
