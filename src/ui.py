@@ -201,7 +201,7 @@ class WordleApp(ctk.CTk):
 
     def create_game_grid(self):
         row_count = 6
-        column_count = 5
+        column_count = 5 # Tutaj zostaje 5 dla wizualnego maksymalnego grida, gra zarządza logiką użycia
         
         for row_idx in range(row_count):
             current_row_tiles = []
@@ -227,7 +227,7 @@ class WordleApp(ctk.CTk):
         aktualny_rzad = self.game.current_row
 
         if event.keysym == "Return":
-            if self.current_col == 5:
+            if self.current_col == self.game.length:
                 self.check_current_row()
             return
 
@@ -240,7 +240,7 @@ class WordleApp(ctk.CTk):
         char = event.char
         if char.isalpha() and len(char) == 1:
             char_upper = char.upper()
-            if self.current_col < 5:
+            if self.current_col < self.game.length:
                 self.tiles[aktualny_rzad][self.current_col].configure(text=char_upper)
                 self.current_col += 1
 
@@ -248,7 +248,7 @@ class WordleApp(ctk.CTk):
         aktualny_rzad = self.game.current_row
         
         guess = ""
-        for col in range(5):
+        for col in range(self.game.length):
             guess += self.tiles[aktualny_rzad][col].cget("text")
 
         colors = self.game.check_word(guess)
@@ -266,7 +266,7 @@ class WordleApp(ctk.CTk):
             "GRAY": "#3A3A3C"
         }
 
-        for col in range(5):
+        for col in range(self.game.length):
             status = colors[col]
             self.tiles[aktualny_rzad][col].configure(fg_color=color_map[status])
 
