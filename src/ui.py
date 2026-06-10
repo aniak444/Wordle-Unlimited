@@ -119,6 +119,8 @@ class WordleApp(ctk.CTk):
         # Zadanie #63: Bindowanie klawisza ENTER do akcji przycisku START w menu
         self.bind("<Return>", self.obsluga_enter_menu)
 
+        self.focus_set()
+
     def obsluga_enter_menu(self, zdarzenie):
         self.uruchom_gre()
 
@@ -155,6 +157,8 @@ class WordleApp(ctk.CTk):
         self.create_game_grid()
         # Schowanie ramki menu, odsłaniające siatkę gry
         self.ramka_menu.place_forget()
+
+        self.focus_set()
 
     def pokaz_powiadomienie(self, komunikat, czas_trwania=2000, kolor_tekstu="#FFFFFF", kolor_tla="#3A3A3C", rely=0.13):
         self.etykieta_powiadomienia.configure(text=komunikat, text_color=kolor_tekstu, fg_color=kolor_tla)
@@ -266,21 +270,24 @@ class WordleApp(ctk.CTk):
     # ZADANIA #88, #89, #90, #92, #65: Logika pełnego twardego restartu gry
     # ======================================================================
     def restartuj_gre(self):
-        def czyszczenie_i_powrot_do_menu():
+        def reset_planszy():
             # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
             self.game = GameEngine()
             
             self.current_col = 0
             
-            if hasattr(self, 'tiles') and self.tiles:
-                for rzad in self.tiles:
-                    for kafelek in rzad:
-                        try:
-                            kafelek.destroy()
-                        except Exception:
-                            pass
-                self.titles = []
+            mapa_trudnosci = {"Łatwy": "EASY", "Średni": "MEDIUM", "Trudny": "HARD"}
+            wybrany_tekst = self.wybor_trudnosci.get()
+            kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
 
+            if hasattr(self.game, 'set_difficulty'):
+                self.game.set_difficulty(kod_trudnosci)
+            elif hasattr(self.game, 'difficulty'):
+                self.game.difficulty = kod_trudnosci
+
+            # 2. Losujemy NOWE słowo o TEJ SAMEJ długości (self.word_length)
+            if hasattr(self.game, 'losuj_nowe_slowo'):
+                self.game.losuj_nowe_slowo(word_length=self.word_length)
             # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
             self.hint_button.configure(
                 state="disabled",
@@ -288,12 +295,14 @@ class WordleApp(ctk.CTk):
                 text_color="#777777"  # Powrót do zgaszonego tekstu
             )
             
-            self.stworz_menu_startowe()
+            self.create_game_grid()
+
+            self.focus_set()
 
         if hasattr(self, 'overlay_frame') and self.overlay_frame.winfo_exists():
-            self.animuj_chowanie_overlay(aktualne_rely=0.5, krok=0.06, callback=czyszczenie_i_powrot_do_menu)
+            self.animuj_chowanie_overlay(aktualne_rely=0.5, krok=0.06, callback=reset_planszy)
         else:    
-            czyszczenie_i_powrot_do_menu()
+            reset_planszy()
             
             
     def show_win_overlay(self):
