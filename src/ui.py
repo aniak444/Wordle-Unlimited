@@ -132,14 +132,25 @@ class WordleApp(ctk.CTk):
             "Średni": "MEDIUM",
             "Trudny": "HARD"
         }
+        mapa_dlugosci = {
+            "Łatwy": 4,
+            "Średni": 5,
+            "Trudny": 6
+        }
         wybrany_tekst = self.wybor_trudnosci.get()
+        self.word_length = mapa_dlugosci.get(wybrany_tekst, 5)
         kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
+
+        print(f"[DEBUG UI] Wybór z menu: '{wybrany_tekst}' -> Ustawiona długość: {self.word_length}")
         
         # Przekazanie zmapowanej wartości do silnika gry
         if hasattr(self.game, 'set_difficulty'):
             self.game.set_difficulty(kod_trudnosci)
         elif hasattr(self.game, 'difficulty'):
             self.game.difficulty = kod_trudnosci
+
+        if hasattr(self.game, 'losuj_nowe_slowo'):
+            self.game.losuj_nowe_slowo(word_length=self.word_length)
             
         self.create_game_grid()
         # Schowanie ramki menu, odsłaniające siatkę gry
@@ -213,13 +224,14 @@ class WordleApp(ctk.CTk):
         # ======================================================================
         # Zadanie #91: Obsługa błędu 'INVALID_WORD' (brak słowa w bazie słownika)
         # ======================================================================
-        if colors == ["INVALID_WORD"] or colors == "INVALID_WORD":
+        if colors == ["INVALID_WORD"] or colors in ("INVALID_WORD", "INVALID", False, None):
             self.pokaz_powiadomienie(
                 komunikat="Słowo niedopuszczalne w grach!",
                 czas_trwania=2000,
                 kolor_tekstu="#FF4D4D",
                 kolor_tla="transparent",
-                rely=0.78)
+                rely=0.78
+                )
             return
 
         color_map = {
@@ -228,6 +240,7 @@ class WordleApp(ctk.CTk):
             "GRAY": "#3A3A3C"
         }
 
+        liczba_kolorow = min(self.word_length, len(colors))
         for col in range(self.word_length):
             status = colors[col]
             self.tiles[aktualny_rzad][col].configure(fg_color=color_map[status])
@@ -255,18 +268,15 @@ class WordleApp(ctk.CTk):
     def restartuj_gre(self):
         # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
         self.game = GameEngine()
-
-        mapa_trudnosci = {
-            "Łatwy": "EASY",
-            "Średni": "MEDIUM",
-            "Trudny": "HARD"
-        }
-        wybrany_tekst = self.wybor_trudnosci.get()
-        kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
         
-        # Zadanie #92: Reset lokalnego wskaźnika kolumn we Frontendzie
         self.current_col = 0
         
+        if hasattr(self, 'tiles') and self.tiles:
+            for rzad in self.tiles:
+                for kafelek in rzad:
+                    kafelek.destroy()
+            self.titles = []
+
         # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
         self.hint_button.configure(
             state="disabled",
@@ -274,16 +284,10 @@ class WordleApp(ctk.CTk):
             text_color="#777777"  # Powrót do zgaszonego tekstu
         )
         
-        # Zadania #89 & #90: Wizualny reset siatki (czyszczenie tekstu i powrót do #2a2d32)
-        for rzad_kafelkow in self.tiles:
-            for pojedynczy_kafelek in rzad_kafelkow:
-                pojedynczy_kafelek.configure(
-                    text="",             # #89: Usunięcie wpisanej litery
-                    fg_color="#2a2d32"    # #90: Przywrócenie pierwotnego koloru tła kafelka
-                )
+        if hasattr(self, 'overlay_frame'):
+            self.overlay_frame.place_forget()
         
-        # Ukrycie nakładki końcowej
-        self.overlay_frame.place_forget()
+        self.stworz_menu_startowe()
 
     def show_win_overlay(self):
         self.overlay_frame = ctk.CTkFrame(
