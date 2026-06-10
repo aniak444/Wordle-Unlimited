@@ -266,29 +266,36 @@ class WordleApp(ctk.CTk):
     # ZADANIA #88, #89, #90, #92, #65: Logika pełnego twardego restartu gry
     # ======================================================================
     def restartuj_gre(self):
-        # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
-        self.game = GameEngine()
-        
-        self.current_col = 0
-        
-        if hasattr(self, 'tiles') and self.tiles:
-            for rzad in self.tiles:
-                for kafelek in rzad:
-                    kafelek.destroy()
-            self.titles = []
+        def czyszczenie_i_powrot_do_menu():
+            # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
+            self.game = GameEngine()
+            
+            self.current_col = 0
+            
+            if hasattr(self, 'tiles') and self.tiles:
+                for rzad in self.tiles:
+                    for kafelek in rzad:
+                        try:
+                            kafelek.destroy()
+                        except Exception:
+                            pass
+                self.titles = []
 
-        # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
-        self.hint_button.configure(
-            state="disabled",
-            fg_color="#3A3A3C",   # Powrót do ciemnoszarego
-            text_color="#777777"  # Powrót do zgaszonego tekstu
-        )
-        
-        if hasattr(self, 'overlay_frame'):
-            self.overlay_frame.place_forget()
-        
-        self.stworz_menu_startowe()
+            # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
+            self.hint_button.configure(
+                state="disabled",
+                fg_color="#3A3A3C",   # Powrót do ciemnoszarego
+                text_color="#777777"  # Powrót do zgaszonego tekstu
+            )
+            
+            self.stworz_menu_startowe()
 
+        if hasattr(self, 'overlay_frame') and self.overlay_frame.winfo_exists():
+            self.animuj_chowanie_overlay(aktualne_rely=0.5, krok=0.06, callback=czyszczenie_i_powrot_do_menu)
+        else:    
+            czyszczenie_i_powrot_do_menu()
+            
+            
     def show_win_overlay(self):
         self.overlay_frame = ctk.CTkFrame(
             self,
@@ -370,3 +377,15 @@ class WordleApp(ctk.CTk):
             command=self.restartuj_gre
         )
         przycisk_restartu.pack(pady=(0, 15))
+    
+    def animuj_chowanie_overlay(self, aktualne_rely=0.5, krok=0.05, callback=None):
+        if hasattr(self, 'overlay_frame') and self.overlay_frame.winfo_exists():
+            nowe_rely = aktualne_rely + krok
+            
+            if nowe_rely < 1.3:
+                self.overlay_frame.place(relx=0.5, rely=nowe_rely, anchor="center")
+                self.after(15, lambda: self.animuj_chowanie_overlay(nowe_rely, krok, callback))
+            else:
+                self.overlay_frame.place_forget()
+                if callback:
+                    callback()
