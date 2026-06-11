@@ -238,6 +238,9 @@ class WordleApp(ctk.CTk):
             self.tiles.append(current_row_tiles)
 
     def handle_keypress(self, event):
+        if self.game.status in ("WIN", "LOSE"):
+            return
+        
         if self.game.status != "IN_PROGRESS":
             return
 
