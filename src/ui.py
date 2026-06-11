@@ -286,33 +286,41 @@ class WordleApp(ctk.CTk):
                 )
             return
 
+        self.animacja_w_toku = True
+        self.current_col = 0
+
+        def animuj_kafelek(col_idx):
+            if col_idx < self.word_length:
+                status = colors[col_idx]
+                self.tiles[aktualny_rzad][col_idx].configure(fg_color=color_map[status])
+                
+                self.after(250, lambda: animuj_kafelek(col_idx + 1))
+            else:
+                
+                self.animacja_w_toku = False
+                
+                # ZADANIE #79: Dynamiczna aktywacja przycisku Podpowiedzi i zmiana kolorów
+                if self.game.status == "IN_PROGRESS" and self.game.current_row >= 3:
+                    self.hint_button.configure(
+                        state="normal",
+                        fg_color="#538D4E",
+                        text_color="#FFFFFF"
+                    )
+
+                # Wyświetlanie ekranu wygranej
+                if self.game.status == "WIN":
+                    self.show_win_overlay()
+                # Wyświetlanie ekranu przegranej
+                if self.game.status == "LOSE":
+                    self.show_lose_overlay()
+        
         color_map = {
             "GREEN": "#538D4E",
             "YELLOW": "#B59F3B",
             "GRAY": "#3A3A3C"
         }
 
-        liczba_kolorow = min(self.word_length, len(colors))
-        for col in range(self.word_length):
-            status = colors[col]
-            self.tiles[aktualny_rzad][col].configure(fg_color=color_map[status])
-
-        self.current_col = 0
-
-        # ZADANIE #79: Dynamiczna aktywacja przycisku Podpowiedzi i zmiana kolorów
-        if self.game.status == "IN_PROGRESS" and self.game.current_row >= 3:
-            self.hint_button.configure(
-                state="normal",
-                fg_color="#538D4E",
-                text_color="#FFFFFF"
-            )
-
-        # Wyświetlanie ekranu wygranej
-        if self.game.status == "WIN":
-            self.show_win_overlay()
-        # Wyświetlanie ekranu przegranej
-        if self.game.status == "LOSE":
-            self.show_lose_overlay()
+        animuj_kafelek(0)
 
     # ======================================================================
     # ZADANIA #88, #89, #90, #92, #65: Logika pełnego twardego restartu gry
