@@ -12,3 +12,6 @@ ENV/
 
 .DS_Store
 Thumbs.db
+
+build/
+dist/
