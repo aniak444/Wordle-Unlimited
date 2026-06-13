@@ -212,7 +212,6 @@ class WordleApp(ctk.CTk):
         self.after(czas_trwania, self.etykieta_powiadomienia.place_forget)
 
     def create_game_grid(self):
-        
         for widget in self.grid_container.winfo_children():
             widget.destroy()
         self.tiles = []
@@ -221,11 +220,11 @@ class WordleApp(ctk.CTk):
         column_count = self.word_length
         
         for row_idx in range(row_count):
-            current_row_tiles = []
+            tiles_row_current = []
             for col_idx in range(column_count):
                 tile = ctk.CTkLabel(
                     self.grid_container,
-                    text="",
+                    text=" ",
                     width=60,
                     height=60,
                     fg_color="#2a2d32",
@@ -233,9 +232,9 @@ class WordleApp(ctk.CTk):
                     font=("Verdana", 24, "bold")
                 )
                 tile.grid(row=row_idx, column=col_idx, padx=6, pady=6)
-                current_row_tiles.append(tile)
+                tiles_row_current.append(tile)
                 
-            self.tiles.append(current_row_tiles)
+            self.tiles.append(tiles_row_current)
 
     def handle_keypress(self, event):
         if self.game.status in ("WIN", "LOSE"):
