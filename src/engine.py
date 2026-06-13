@@ -25,9 +25,8 @@ class GameEngine:
             
         self._target_word, self._hint = get_random_word(self.length, self.difficulty)
         self.current_row = 0
-        self.status = "IN_PROGRESS"
         self.hint_used = False
-        print(f"RESET Nowe hasło: {self._target_word}")
+        self.status = "IN_PROGRESS"
 
     def is_hint_available(self) -> bool:
         return self.current_row >= 3 and not self.hint_used
