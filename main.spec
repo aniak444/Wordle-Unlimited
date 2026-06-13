@@ -1,18 +1,24 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 
+block_cipher = None
 
 a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('.venv/Lib/site-packages/customtkinter', 'customtkinter/'), ('words.json', '.')],
+    datas=[('.venv/Lib/site-packages/customtkinter', 'customtkinter/'),
+        ('words.json', '.')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
-    optimize=0,
 )
 pyz = PYZ(a.pure)
 

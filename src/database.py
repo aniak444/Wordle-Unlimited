@@ -4,10 +4,18 @@ import os
 import urllib.request
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
+import sys
 
 # dodanie zmiennych konfiguracyjnych
-DB_PATH = os.path.join(os.getcwd(), "wordle.db")
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "wordle.db")
 TABLE_NAME = "words"
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+    return os.path.join(base_path, relative_path)
 
 def init_db():
     # tworzy tabele w bazie danych jesli jeszcze nei istnieje
@@ -29,6 +37,8 @@ def init_db():
 
 def seed_database(json_path="words.json"):
     # wczytuje słowa z pliku JSON do bazy, zapobiega duplikatom
+    resolved_json_path = resource_path(json_path)
+    
     if not os.path.exists(json_path):
         print(f"Plik {json_path} nie istnieje")
         return
