@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from src.engine import GameEngine
+import os
+import sys
 
 class WordleApp(ctk.CTk):
     def __init__(self):
@@ -15,6 +17,19 @@ class WordleApp(ctk.CTk):
         
         # Zadanie #59: Blokada zmiany rozmiaru okna głównego
         self.resizable(False, False)
+
+        # Ustawienie ikony aplikacji #117
+        if hasattr(sys, '_MEIPASS'):
+            icon_path = os.path.join(sys._MEIPASS, "icon.ico")
+        else:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            icon_path = os.path.join(current_dir, "..", "icon.ico")
+        
+        try:
+            self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Nie udało się załadować ikony okna: {e}")
+            
         
         self.header_label = ctk.CTkLabel(
             self,
