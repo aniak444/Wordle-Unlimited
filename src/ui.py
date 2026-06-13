@@ -80,14 +80,14 @@ class WordleApp(ctk.CTk):
         )
         self.hint_button.pack()
         
-        # ZADANIE #80: Konstrukcja dymka informacyjnego
+        # ZADANIE #80 & #120: Konstrukcja i ostylowanie dymka informacyjnego
         self.hint_popup_frame = ctk.CTkFrame(
             self,
             width=350,
             height=80,
-            fg_color="#1e1e1e",
+            fg_color="#2a2d32", # ZADANIE #120: Lekko jaśniejsze tło
             border_width=2,
-            border_color="#B59F3B",
+            border_color="#2a2d32", # ZADANIE #120: Startowo ukryta ramka (kolor taki sam jak tło)
             corner_radius=12
         )
         self.hint_popup_frame.pack_propagate(False)
@@ -95,8 +95,8 @@ class WordleApp(ctk.CTk):
         self.hint_popup_label = ctk.CTkLabel(
             self.hint_popup_frame,
             text="Placeholder (powinno być tekstem z bazy)...",
-            font=("Verdana", 14),
-            text_color="#FFFFFF",
+            font=("Verdana", 13, "italic"), # ZADANIE #120: Zmiana fontu na mniejszą kursywę
+            text_color="#2a2d32", # ZADANIE #120: Startowo ukryty tekst (kolor taki sam jak tło)
             wraplength=320
         )
         self.hint_popup_label.pack(expand=True, padx=10, pady=10)
@@ -215,9 +215,35 @@ class WordleApp(ctk.CTk):
         # Schowanie ramki menu, odsłaniające siatkę gry
         self.ramka_menu.place_forget()
 
-    # ZADANIE #80: Funkcja wyświetlająca dymek po kliknięciu
+    # ZADANIE #80: Wyświetlanie dymka podpowiedzi
     def pokaz_podpowiedz(self):
+        self.hint_button.configure(state="disabled")
+        self.hint_popup_frame.configure(border_color="#2a2d32")
+        self.hint_popup_label.configure(text_color="#2a2d32")
+        
         self.hint_popup_frame.place(relx=0.5, rely=0.76, anchor="center")
+        self.animuj_fade_in(0)
+
+    # ZADANIE #120: Symulacja efektu Fade-In nieubsługiwanego przez CTk
+    def animuj_fade_in(self, krok=0):
+        maks_krokow = 15
+        if krok <= maks_krokow:
+            proporcja = krok / maks_krokow
+            
+            r_bg, g_bg, b_bg = 42, 45, 50
+            
+            r_txt = int(r_bg + (255 - r_bg) * proporcja)
+            g_txt = int(g_bg + (255 - g_bg) * proporcja)
+            b_txt = int(b_bg + (255 - b_bg) * proporcja)
+            
+            r_ramka = int(r_bg + (181 - r_bg) * proporcja)
+            g_ramka = int(g_bg + (159 - g_bg) * proporcja)
+            b_ramka = int(b_bg + (59 - b_bg) * proporcja)
+            
+            self.hint_popup_label.configure(text_color=f"#{r_txt:02x}{g_txt:02x}{b_txt:02x}")
+            self.hint_popup_frame.configure(border_color=f"#{r_ramka:02x}{g_ramka:02x}{b_ramka:02x}")
+            
+            self.after(20, lambda: self.animuj_fade_in(krok + 1))
 
     def pokaz_powiadomienie(self, komunikat, czas_trwania=2000, kolor_tekstu="#FFFFFF", kolor_tla="#3A3A3C", rely=0.13):
         self.etykieta_powiadomienia.configure(text=komunikat, text_color=kolor_tekstu, fg_color=kolor_tla)
@@ -313,7 +339,7 @@ class WordleApp(ctk.CTk):
                 
                 self.animacja_w_toku = False
                 
-                # ZADANIE #79: Dynamiczna aktywacja przycisku Podpowiedzi i zmiana kolorów
+                # Dynamiczna aktywacja przycisku i zmiana kolorów
                 if self.game.status == "IN_PROGRESS" and self.game.current_row >= 3:
                     self.hint_button.configure(
                         state="normal",
