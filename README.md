@@ -47,15 +47,22 @@ Aplikacja została zaprojektowana zgodnie z dobrymi praktykami inżynierii oprog
 
 ## Jak uruchomić grę
 
-**Opcja 1: Uruchomienie gotowej gry (Zalecane)**
+**Opcja 1: Uruchomienie gotowej gry**
 Wystarczy pobrać wygenerowany plik `WordleUnlimited.exe` i uruchomić go dwukrotnym kliknięciem. Gra działa natychmiast, nie wymaga instalacji żadnych dodatkowych programów ani środowiska Python na Twoim komputerze.
 
 **Opcja 2: Uruchomienie z kodu źródłowego**
 1. Zainstaluj wymagane biblioteki poleceniem w terminalu: `pip install -r requirements.txt`
 2. Uruchom grę wpisując: `python main.py`
 
+**Opcja 3: Kompilacja własnego pliku wykonywalnego (Zalecane)**
+1. Zainstaluj wymagane biblioteki poleceniem w terminalu: `pip install -r requirements.txt`
+2. Zbuduj plik .exe za pomocą komendy:
+    ```bash
+        pyinstaller --noconfirm --onefile --windowed --icon "icon.ico" --add-data "words.json;." --add-data "icon.ico;." --collect-all customtkinter "main.py" ```
+3. W nowo utworzonym folderze dist/ znajdziesz plik wykonywalny main.exe
+
 ---
-> **Status projektu:** W trakcie budowy (In Development)
+> **Status projektu:** Zakończony
 ---
 
 ## Licencja
