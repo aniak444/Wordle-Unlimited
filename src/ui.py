@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from src.engine import GameEngine
+import os
+import sys
 
 class WordleApp(ctk.CTk):
     def __init__(self):
@@ -15,6 +17,19 @@ class WordleApp(ctk.CTk):
         
         # Zadanie #59: Blokada zmiany rozmiaru okna głównego
         self.resizable(False, False)
+
+        # Ustawienie ikony aplikacji #117
+        if hasattr(sys, '_MEIPASS'):
+            icon_path = os.path.join(sys._MEIPASS, "icon.ico")
+        else:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            icon_path = os.path.join(current_dir, "..", "icon.ico")
+        
+        try:
+            self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Nie udało się załadować ikony okna: {e}")
+            
         
         self.header_label = ctk.CTkLabel(
             self,
@@ -65,14 +80,14 @@ class WordleApp(ctk.CTk):
         )
         self.hint_button.pack()
         
-        # ZADANIE #80: Konstrukcja dymka informacyjnego
+        # ZADANIE #80 & #120: Konstrukcja i ostylowanie dymka informacyjnego
         self.hint_popup_frame = ctk.CTkFrame(
             self,
             width=350,
             height=80,
-            fg_color="#1e1e1e",
+            fg_color="#2a2d32", # ZADANIE #120: Lekko jaśniejsze tło
             border_width=2,
-            border_color="#B59F3B",
+            border_color="#2a2d32", # ZADANIE #120: Startowo ukryta ramka (kolor taki sam jak tło)
             corner_radius=12
         )
         self.hint_popup_frame.pack_propagate(False)
@@ -80,16 +95,16 @@ class WordleApp(ctk.CTk):
         self.hint_popup_label = ctk.CTkLabel(
             self.hint_popup_frame,
             text="Placeholder (powinno być tekstem z bazy)...",
-            font=("Verdana", 14),
-            text_color="#FFFFFF",
+            font=("Verdana", 13, "italic"), # ZADANIE #120: Zmiana fontu na mniejszą kursywę
+            text_color="#2a2d32", # ZADANIE #120: Startowo ukryty tekst (kolor taki sam jak tło)
             wraplength=320
         )
         self.hint_popup_label.pack(expand=True, padx=10, pady=10)
         
         self.tiles = []
         self.current_col = 0
+        self.word_length = 5
         
-        self.create_game_grid()
         self.bind("<Key>", self.handle_keypress)
 
         # Wywołanie menu startowego
@@ -159,6 +174,8 @@ class WordleApp(ctk.CTk):
         # Zadanie #63: Bindowanie klawisza ENTER do akcji przycisku START w menu
         self.bind("<Return>", self.obsluga_enter_menu)
 
+        self.focus_set()
+
     def obsluga_enter_menu(self, zdarzenie):
         self.uruchom_gre()
 
@@ -172,43 +189,83 @@ class WordleApp(ctk.CTk):
             "Średni": "MEDIUM",
             "Trudny": "HARD"
         }
+        
         wybrany_tekst = self.wybor_trudnosci.get()
         kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
-        
-        # Pobranie wybranej długości słowa (Zadanie #36)
-        wybrana_dlugosc = int(self.wybor_dlugosci.get())
+
+        self.word_length = int(self.wybor_dlugosci.get())
+                               
+        print(f"[DEBUG UI] Wybór z menu: '{wybrany_tekst}' -> Ustawiona długość: {self.word_length}")
         
         # Przekazanie zmapowanych wartości do silnika gry
         if hasattr(self.game, 'reset_state'):
-            self.game.reset_state(length=wybrana_dlugosc, difficulty=kod_trudnosci)
+            self.game.reset_state(length=self.word_length, difficulty=kod_trudnosci)
         else:
-            if hasattr(self.game, 'difficulty'):
+            if hasattr(self.game, 'set_difficulty'):
+                self.game.set_difficulty(kod_trudnosci)
+            elif hasattr(self.game, 'difficulty'):
                 self.game.difficulty = kod_trudnosci
             if hasattr(self.game, 'length'):
-                self.game.length = wybrana_dlugosc
+                self.game.length = self.word_length
+
+        if hasattr(self.game, 'losuj_nowe_slowo'):
+            self.game.losuj_nowe_slowo(word_length=self.word_length)
             
+        self.create_game_grid()
         # Schowanie ramki menu, odsłaniające siatkę gry
         self.ramka_menu.place_forget()
 
-    # ZADANIE #80: Funkcja wyświetlająca dymek po kliknięciu
+    # ZADANIE #80: Wyświetlanie dymka podpowiedzi
     def pokaz_podpowiedz(self):
+        self.hint_button.configure(state="disabled")
+        self.hint_popup_frame.configure(border_color="#2a2d32")
+        self.hint_popup_label.configure(text_color="#2a2d32")
+        
         self.hint_popup_frame.place(relx=0.5, rely=0.76, anchor="center")
+        self.animuj_fade_in(0)
 
-    def pokaz_powiadomienie(self, komunikat, czas_trwania=2000):
-        self.etykieta_powiadomienia.configure(text=komunikat)
-        self.etykieta_powiadomienia.place(relx=0.5, rely=0.13, anchor="center")
+    # ZADANIE #120: Symulacja efektu Fade-In nieubsługiwanego przez CTk
+    def animuj_fade_in(self, krok=0):
+        maks_krokow = 15
+        if krok <= maks_krokow:
+            proporcja = krok / maks_krokow
+            
+            r_bg, g_bg, b_bg = 42, 45, 50
+            
+            r_txt = int(r_bg + (255 - r_bg) * proporcja)
+            g_txt = int(g_bg + (255 - g_bg) * proporcja)
+            b_txt = int(b_bg + (255 - b_bg) * proporcja)
+            
+            r_ramka = int(r_bg + (181 - r_bg) * proporcja)
+            g_ramka = int(g_bg + (159 - g_bg) * proporcja)
+            b_ramka = int(b_bg + (59 - b_bg) * proporcja)
+            
+            self.hint_popup_label.configure(text_color=f"#{r_txt:02x}{g_txt:02x}{b_txt:02x}")
+            self.hint_popup_frame.configure(border_color=f"#{r_ramka:02x}{g_ramka:02x}{b_ramka:02x}")
+            
+            self.after(20, lambda: self.animuj_fade_in(krok + 1))
+
+    def pokaz_powiadomienie(self, komunikat, czas_trwania=2000, kolor_tekstu="#FFFFFF", kolor_tla="#3A3A3C", rely=0.13):
+        self.etykieta_powiadomienia.configure(text=komunikat, text_color=kolor_tekstu, fg_color=kolor_tla)
+        self.etykieta_powiadomienia.place(relx=0.5, rely=rely, anchor="center")
+        self.etykieta_powiadomienia.lift()
+
         self.after(czas_trwania, self.etykieta_powiadomienia.place_forget)
 
     def create_game_grid(self):
+        for widget in self.grid_container.winfo_children():
+            widget.destroy()
+        self.tiles = []
+        
         row_count = 6
-        column_count = 5 # Tutaj zostaje 5 dla wizualnego maksymalnego grida, gra zarządza logiką użycia
+        column_count = self.word_length
         
         for row_idx in range(row_count):
-            current_row_tiles = []
+            tiles_row_current = []
             for col_idx in range(column_count):
                 tile = ctk.CTkLabel(
                     self.grid_container,
-                    text="",
+                    text=" ",
                     width=60,
                     height=60,
                     fg_color="#2a2d32",
@@ -216,18 +273,21 @@ class WordleApp(ctk.CTk):
                     font=("Verdana", 24, "bold")
                 )
                 tile.grid(row=row_idx, column=col_idx, padx=6, pady=6)
-                current_row_tiles.append(tile)
+                tiles_row_current.append(tile)
                 
-            self.tiles.append(current_row_tiles)
+            self.tiles.append(tiles_row_current)
 
     def handle_keypress(self, event):
+        if self.game.status in ("WIN", "LOSE"):
+            return
+        
         if self.game.status != "IN_PROGRESS":
             return
 
         aktualny_rzad = self.game.current_row
 
         if event.keysym == "Return":
-            if self.current_col == self.game.length:
+            if self.current_col == self.word_length:
                 self.check_current_row()
             return
 
@@ -240,7 +300,7 @@ class WordleApp(ctk.CTk):
         char = event.char
         if char.isalpha() and len(char) == 1:
             char_upper = char.upper()
-            if self.current_col < self.game.length:
+            if self.current_col < self.word_length:
                 self.tiles[aktualny_rzad][self.current_col].configure(text=char_upper)
                 self.current_col += 1
 
@@ -248,7 +308,7 @@ class WordleApp(ctk.CTk):
         aktualny_rzad = self.game.current_row
         
         guess = ""
-        for col in range(self.game.length):
+        for col in range(self.word_length):
             guess += self.tiles[aktualny_rzad][col].cget("text")
 
         colors = self.game.check_word(guess)
@@ -256,68 +316,108 @@ class WordleApp(ctk.CTk):
         # ======================================================================
         # Zadanie #91: Obsługa błędu 'INVALID_WORD'
         # ======================================================================
-        if colors == ["INVALID_WORD"] or colors == "INVALID_WORD":
-            self.pokaz_powiadomienie("Słowo niedopuszczalne w grach!")
+        if colors == ["INVALID_WORD"] or colors in ("INVALID_WORD", "INVALID", False, None):
+            self.pokaz_powiadomienie(
+                komunikat="Słowo niedopuszczalne w grach!",
+                czas_trwania=2000,
+                kolor_tekstu="#FF4D4D",
+                kolor_tla="transparent",
+                rely=0.78
+                )
             return
 
+        self.animacja_w_toku = True
+        self.current_col = 0
+
+        def animuj_kafelek(col_idx):
+            if col_idx < self.word_length:
+                status = colors[col_idx]
+                self.tiles[aktualny_rzad][col_idx].configure(fg_color=color_map[status])
+                
+                self.after(250, lambda: animuj_kafelek(col_idx + 1))
+            else:
+                
+                self.animacja_w_toku = False
+                
+                # Dynamiczna aktywacja przycisku i zmiana kolorów
+                if self.game.status == "IN_PROGRESS" and self.game.current_row >= 3:
+                    self.hint_button.configure(
+                        state="normal",
+                        fg_color="#538D4E",
+                        text_color="#FFFFFF"
+                    )
+
+                # Wyświetlanie ekranu wygranej
+                if self.game.status == "WIN":
+                    self.show_win_overlay()
+                # Wyświetlanie ekranu przegranej
+                if self.game.status == "LOSE":
+                    self.show_lose_overlay()
+        
         color_map = {
             "GREEN": "#538D4E",
             "YELLOW": "#B59F3B",
             "GRAY": "#3A3A3C"
         }
 
-        for col in range(self.game.length):
-            status = colors[col]
-            self.tiles[aktualny_rzad][col].configure(fg_color=color_map[status])
-
-        self.current_col = 0
-
-        # ZADANIE #79: Dynamiczna aktywacja przycisku Podpowiedzi i zmiana kolorów
-        if self.game.status == "IN_PROGRESS" and self.game.current_row >= 3:
-            self.hint_button.configure(
-                state="normal",
-                fg_color="#538D4E",
-                text_color="#FFFFFF"
-            )
-
-        # Wyświetlanie ekranu wygranej
-        if self.game.status == "WIN":
-            self.show_win_overlay()
-        # Wyświetlanie ekranu przegranej
-        if self.game.status == "LOSE":
-            self.show_lose_overlay()
+        animuj_kafelek(0)
 
     # ======================================================================
     # ZADANIA #88, #89, #90, #92, #65: Logika pełnego twardego restartu gry
     # ======================================================================
     def restartuj_gre(self):
-        # Reset stanu silnika gry w backendzie
-        self.game.reset_state()
-        
-        # Reset lokalnego wskaźnika kolumn we Frontendzie
-        self.current_col = 0
-        
-        # Ponowna blokada przycisku podpowiedzi na starcie nowej gry
-        self.hint_button.configure(
-            state="disabled",
-            fg_color="#3A3A3C",
-            text_color="#777777"
-        )
-        
-        # Ukrycie dymka podpowiedzi, jeśli był otwarty
-        self.hint_popup_frame.place_forget()
-        
-        # Wizualny reset siatki
-        for rzad_kafelkow in self.tiles:
-            for pojedynczy_kafelek in rzad_kafelkow:
-                pojedynczy_kafelek.configure(
-                    text="",             
-                    fg_color="#2a2d32"    
-                )
-        
-        # Ukrycie nakładki końcowej
-        self.overlay_frame.place_forget()
+        def reset_planszy():
+            # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
+            self.game = GameEngine()
+            
+            self.current_col = 0
+            
+            mapa_trudnosci = {"Łatwy": "EASY", "Średni": "MEDIUM", "Trudny": "HARD"}
+            wybrany_tekst = self.wybor_trudnosci.get()
+            kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
 
+            if hasattr(self.game, 'set_difficulty'):
+                self.game.set_difficulty(kod_trudnosci)
+            elif hasattr(self.game, 'difficulty'):
+                self.game.difficulty = kod_trudnosci
+
+            self.word_length = int(self.wybor_dlugosci.get())
+
+            # 2. Losujemy NOWE słowo o TEJ SAMEJ długości (self.word_length)
+            if hasattr(self.game, 'losuj_nowe_slowo'):
+                self.game.losuj_nowe_slowo(word_length=self.word_length)
+            # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
+            self.hint_button.configure(
+                state="disabled",
+                fg_color="#3A3A3C",   # Powrót do ciemnoszarego
+                text_color="#777777"  # Powrót do zgaszonego tekstu
+            )
+            
+            # Ukrycie dymka podpowiedzi, jeśli był otwarty
+            if hasattr(self, 'hint_popup_frame'):
+                self.hint_popup_frame.place_forget()
+
+                # Wizualny reset siatki
+            for rzad_kafelkow in self.tiles:
+                for pojedynczy_kafelek in rzad_kafelkow:
+                    pojedynczy_kafelek.configure(
+                        text="",             
+                        fg_color="#2a2d32"    
+                    )
+        
+
+            self.create_game_grid()
+
+            self.focus_set()
+
+        if hasattr(self, 'overlay_frame') and self.overlay_frame.winfo_exists():
+            self.animuj_chowanie_overlay(aktualne_rely=0.5, krok=0.06, callback=reset_planszy)
+        else:
+            if hasattr(self, 'overlay_frame'):
+                self.overlay_frame.place_forget()    
+            reset_planszy()
+            
+            
     def show_win_overlay(self):
         self.overlay_frame = ctk.CTkFrame(
             self,
@@ -399,3 +499,15 @@ class WordleApp(ctk.CTk):
             command=self.restartuj_gre
         )
         przycisk_restartu.pack(pady=(0, 15))
+    
+    def animuj_chowanie_overlay(self, aktualne_rely=0.5, krok=0.05, callback=None):
+        if hasattr(self, 'overlay_frame') and self.overlay_frame.winfo_exists():
+            nowe_rely = aktualne_rely + krok
+            
+            if nowe_rely < 1.3:
+                self.overlay_frame.place(relx=0.5, rely=nowe_rely, anchor="center")
+                self.after(15, lambda: self.animuj_chowanie_overlay(nowe_rely, krok, callback))
+            else:
+                self.overlay_frame.place_forget()
+                if callback:
+                    callback()

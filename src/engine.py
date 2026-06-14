@@ -25,9 +25,8 @@ class GameEngine:
             
         self._target_word, self._hint = get_random_word(self.length, self.difficulty)
         self.current_row = 0
-        self.status = "IN_PROGRESS"
         self.hint_used = False
-        print(f"RESET Nowe hasło: {self._target_word}")
+        self.status = "IN_PROGRESS"
 
     def is_hint_available(self) -> bool:
         return self.current_row >= 3 and not self.hint_used
@@ -37,6 +36,9 @@ class GameEngine:
             self.hint_used = True
             return self._hint
         return ""
+
+    def set_difficulty(self, difficulty: str):
+        self.difficulty = difficulty
 
     def check_word(self, guess: str) -> list:
         guess = guess.upper()
@@ -72,3 +74,18 @@ class GameEngine:
             self.status = "LOSE"
 
         return result
+
+    def losuj_nowe_slowo(self, word_length: int):
+        slowa_testowe = {
+            4: "KOTY",
+            5: "KODER",
+            6: "PYTHON"
+        }
+        
+        self.target_word = slowa_testowe.get(word_length, "KODER").upper()
+        
+        print(f"[DEBUG ENGINE] Wylosowano hasło testowe: '{self.target_word}' (długość: {word_length})")
+        
+        # Resetujemy stan rundy
+        self.current_row = 0
+        self.status = "IN_PROGRESS"
