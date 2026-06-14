@@ -2,6 +2,7 @@ import sqlite3
 import json
 import os
 import urllib.request
+import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 
@@ -28,6 +29,13 @@ def init_db():
     conn.close()
 
 def seed_database(json_path="words.json"):
+    # ---> DODANY KOD DLA PYINSTALLERA <---
+    if hasattr(sys, '_MEIPASS'):
+        json_path = os.path.join(sys._MEIPASS, json_path)
+    else:
+        json_path = os.path.join(os.getcwd(), json_path)
+    # -------------------------------------
+
     # wczytuje słowa z pliku JSON do bazy, zapobiega duplikatom
     if not os.path.exists(json_path):
         print(f"Plik {json_path} nie istnieje")
