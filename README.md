@@ -58,7 +58,8 @@ Wystarczy pobrać wygenerowany plik `WordleUnlimited.exe` i uruchomić go dwukro
 1. Zainstaluj wymagane biblioteki poleceniem w terminalu: `pip install -r requirements.txt`
 2. Zbuduj plik .exe za pomocą komendy:
     ```bash
-        pyinstaller --noconfirm --onefile --windowed --icon "icon.ico" --add-data "words.json;." --add-data "icon.ico;." --collect-all customtkinter "main.py" ```
+        pyinstaller --noconfirm --onefile --windowed --icon "icon.ico" --add-data "words.json;." --add-data "icon.ico;." --collect-all customtkinter "main.py"
+    ```
 3. W nowo utworzonym folderze dist/ znajdziesz plik wykonywalny main.exe
 
 ---
