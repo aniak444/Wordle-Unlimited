@@ -2,12 +2,27 @@ import sqlite3
 import json
 import os
 import urllib.request
+import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 
-# dodanie zmiennych konfiguracyjnych
-DB_PATH = os.path.join(os.getcwd(), "wordle.db")
+# =========================================================
+# ZADANIE #116: Dynamiczne tworzenie bazy w %APPDATA%
+# =========================================================
+appdata_path = os.getenv('APPDATA')
+
+# W razie gdyby ktoś odpalił to na Linuxie/Macu (fallback)
+if not appdata_path:
+    appdata_path = os.path.expanduser('~')
+
+# Tworzymy dedykowany folder dla naszej gry w AppData
+GAME_FOLDER = os.path.join(appdata_path, "WordleUnlimited")
+os.makedirs(GAME_FOLDER, exist_ok=True)
+
+# Ustawiamy ścieżkę bazy danych na ten bezpieczny folder
+DB_PATH = os.path.join(GAME_FOLDER, "wordle.db")
 TABLE_NAME = "words"
+# =========================================================
 
 def init_db():
     # tworzy tabele w bazie danych jesli jeszcze nei istnieje
@@ -28,6 +43,13 @@ def init_db():
     conn.close()
 
 def seed_database(json_path="words.json"):
+    # ---> KOD DLA PYINSTALLERA (Zadanie #115) <---
+    if hasattr(sys, '_MEIPASS'):
+        json_path = os.path.join(sys._MEIPASS, json_path)
+    else:
+        json_path = os.path.join(os.getcwd(), json_path)
+    # ---------------------------------------------
+
     # wczytuje słowa z pliku JSON do bazy, zapobiega duplikatom
     if not os.path.exists(json_path):
         print(f"Plik {json_path} nie istnieje")
@@ -67,7 +89,7 @@ def seed_database(json_path="words.json"):
         
     conn.commit()
     conn.close()
-    print(f"Pomyślnie dodano {len(words_data)} słów do bazy danych")
+    print(f"Pomyślnie dodano {len(words_data)} słów do bazy danych: {DB_PATH}")
 
 
 def get_random_word(length: int, difficulty: str) -> tuple:
