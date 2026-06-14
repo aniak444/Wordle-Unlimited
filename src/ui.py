@@ -101,6 +101,9 @@ class WordleApp(ctk.CTk):
         )
         self.hint_popup_label.pack(expand=True, padx=10, pady=10)
         
+        self.hint_popup_frame.bind("<Button-1>", self.ukryj_podpowiedz)
+        self.hint_popup_label.bind("<Button-1>", self.ukryj_podpowiedz)
+        
         self.tiles = []
         self.current_col = 0
         self.word_length = 5
@@ -180,10 +183,8 @@ class WordleApp(ctk.CTk):
         self.uruchom_gre()
 
     def uruchom_gre(self):
-        # Zadanie #63: Odpięcie powiązania Entera z menu startowego
         self.unbind("<Return>")
         
-        # Mapowanie polskich napisów z interfejsu na format tekstowy silnika (Enum)
         mapa_trudnosci = {
             "Łatwy": "EASY",
             "Średni": "MEDIUM",
@@ -194,35 +195,30 @@ class WordleApp(ctk.CTk):
         kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
 
         self.word_length = int(self.wybor_dlugosci.get())
-                               
-        print(f"[DEBUG UI] Wybór z menu: '{wybrany_tekst}' -> Ustawiona długość: {self.word_length}")
         
-        # Przekazanie zmapowanych wartości do silnika gry
-        if hasattr(self.game, 'reset_state'):
-            self.game.reset_state(length=self.word_length, difficulty=kod_trudnosci)
-        else:
-            if hasattr(self.game, 'set_difficulty'):
-                self.game.set_difficulty(kod_trudnosci)
-            elif hasattr(self.game, 'difficulty'):
-                self.game.difficulty = kod_trudnosci
-            if hasattr(self.game, 'length'):
-                self.game.length = self.word_length
-
-        if hasattr(self.game, 'losuj_nowe_slowo'):
-            self.game.losuj_nowe_slowo(word_length=self.word_length)
+        self.game.reset_state(length=self.word_length, difficulty=kod_trudnosci)
             
         self.create_game_grid()
-        # Schowanie ramki menu, odsłaniające siatkę gry
         self.ramka_menu.place_forget()
 
-    # ZADANIE #80: Wyświetlanie dymka podpowiedzi
     def pokaz_podpowiedz(self):
+        prawdziwa_podpowiedz = self.game.get_hint()
+        if not prawdziwa_podpowiedz:
+            prawdziwa_podpowiedz = "Brak podpowiedzi dla tego słowa."
+            
+        self.hint_popup_label.configure(text=prawdziwa_podpowiedz)
+
         self.hint_button.configure(state="disabled")
         self.hint_popup_frame.configure(border_color="#2a2d32")
         self.hint_popup_label.configure(text_color="#2a2d32")
         
         self.hint_popup_frame.place(relx=0.5, rely=0.76, anchor="center")
         self.animuj_fade_in(0)
+        
+        self.after(6000, self.ukryj_podpowiedz)
+
+    def ukryj_podpowiedz(self, event=None):
+        self.hint_popup_frame.place_forget()
 
     # ZADANIE #120: Symulacja efektu Fade-In nieubsługiwanego przez CTk
     def animuj_fade_in(self, krok=0):
@@ -367,54 +363,32 @@ class WordleApp(ctk.CTk):
     # ======================================================================
     def restartuj_gre(self):
         def reset_planszy():
-            # Zadanie #88 & #65: Reset stanu silnika gry w backendzie
-            self.game = GameEngine()
-            
             self.current_col = 0
             
             mapa_trudnosci = {"Łatwy": "EASY", "Średni": "MEDIUM", "Trudny": "HARD"}
             wybrany_tekst = self.wybor_trudnosci.get()
             kod_trudnosci = mapa_trudnosci.get(wybrany_tekst, "EASY")
 
-            if hasattr(self.game, 'set_difficulty'):
-                self.game.set_difficulty(kod_trudnosci)
-            elif hasattr(self.game, 'difficulty'):
-                self.game.difficulty = kod_trudnosci
-
             self.word_length = int(self.wybor_dlugosci.get())
 
-            # 2. Losujemy NOWE słowo o TEJ SAMEJ długości (self.word_length)
-            if hasattr(self.game, 'losuj_nowe_slowo'):
-                self.game.losuj_nowe_slowo(word_length=self.word_length)
-            # ZADANIE #79: Ponowna blokada przycisku podpowiedzi na starcie nowej gry
+            self.game.reset_state(length=self.word_length, difficulty=kod_trudnosci)
+            
             self.hint_button.configure(
                 state="disabled",
-                fg_color="#3A3A3C",   # Powrót do ciemnoszarego
-                text_color="#777777"  # Powrót do zgaszonego tekstu
+                fg_color="#3A3A3C",
+                text_color="#777777"
             )
             
-            # Ukrycie dymka podpowiedzi, jeśli był otwarty
             if hasattr(self, 'hint_popup_frame'):
                 self.hint_popup_frame.place_forget()
 
-                # Wizualny reset siatki
-            for rzad_kafelkow in self.tiles:
-                for pojedynczy_kafelek in rzad_kafelkow:
-                    pojedynczy_kafelek.configure(
-                        text="",             
-                        fg_color="#2a2d32"    
-                    )
-        
-
             self.create_game_grid()
-
+            
             self.focus_set()
 
         if hasattr(self, 'overlay_frame') and self.overlay_frame.winfo_exists():
             self.animuj_chowanie_overlay(aktualne_rely=0.5, krok=0.06, callback=reset_planszy)
         else:
-            if hasattr(self, 'overlay_frame'):
-                self.overlay_frame.place_forget()    
             reset_planszy()
             
             
@@ -508,6 +482,6 @@ class WordleApp(ctk.CTk):
                 self.overlay_frame.place(relx=0.5, rely=nowe_rely, anchor="center")
                 self.after(15, lambda: self.animuj_chowanie_overlay(nowe_rely, krok, callback))
             else:
-                self.overlay_frame.place_forget()
+                self.overlay_frame.destroy() 
                 if callback:
                     callback()
