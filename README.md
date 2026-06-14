@@ -45,6 +45,20 @@ Aplikacja została zaprojektowana zgodnie z dobrymi praktykami inżynierii oprog
 
 ---
 
+## Słownik Danych (Baza SQLite)
+
+Aplikacja wykorzystuje lokalną bazę danych SQLite do przechowywania słownika haseł. Poniżej znajduje się formalna struktura głównej tabeli `words`:
+
+| Nazwa Kolumny | Typ Danych | Ograniczenia (Constraints) | Opis |
+| :--- | :--- | :--- | :--- |
+| `id` | INTEGER | PRIMARY KEY, AUTOINCREMENT | Unikalny identyfikator rekordu |
+| `word` | TEXT | NOT NULL, UNIQUE | Przechowywane hasło do odgadnięcia (zawsze wielkimi literami) |
+| `length` | INTEGER | NOT NULL | Długość słowa (np. 4, 5, 6) |
+| `difficulty` | TEXT | NOT NULL | Poziom trudności (EASY, MEDIUM, HARD) |
+| `hint` | TEXT | NOT NULL | Tekstowa podpowiedź dla gracza |
+
+---
+
 ## Jak uruchomić grę
 
 **Opcja 1: Uruchomienie gotowej gry (Zalecane)**
